@@ -14,28 +14,51 @@ public class Cluedo extends JFrame {
     public static final Color EMPTY_COLOR = new Color(79,156,100);
     public static final Color WALL_COLOR = new Color(87, 47, 32);
 
-    public static void main(String[] args){
-        EventQueue.invokeLater(() -> {
-            Cluedo frame = new Cluedo();
-            Game game = new Game();
+    Cluedo(){
+        initUI();
+    }
 
-            frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-            frame.getRootPane().setLayout(new BorderLayout());
+    private void initUI(){
+        Game game = new Game();
 
-            JPanel board = createBoardCanvas(game);
-            JPanel bottomPanel = new JPanel();
-            JPanel cards = createCardPanel(game);
-            JPanel buttons = createButtonPanel(game);
-            bottomPanel.add(buttons);
-            bottomPanel.add(cards);
+        setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+        setTitle("Cluedo");
+        setLocationRelativeTo(null);
+        getRootPane().setLayout(new BorderLayout());
 
-            frame.getRootPane().add(board, BorderLayout.CENTER);
-            frame.getRootPane().add(bottomPanel, BorderLayout.SOUTH);
+        JPanel board = createBoardCanvas(game);
+        JPanel bottomPanel = new JPanel();
+        JPanel cards = createCardPanel(game);
+        JPanel buttons = createButtonPanel(game);
+        bottomPanel.add(buttons);
+        bottomPanel.add(cards);
 
-            frame.pack();
-            frame.setVisible(true);
+        getRootPane().add(createMenuBar(), BorderLayout.NORTH);
+        getRootPane().add(board, BorderLayout.CENTER);
+        getRootPane().add(bottomPanel, BorderLayout.SOUTH);
 
-        });
+
+        pack();
+    }
+
+    private JMenuBar createMenuBar(){
+        JMenuBar menuBar = new JMenuBar();
+
+        JMenu fileMenu = new JMenu("File");
+        JMenuItem exitMenuItem = new JMenuItem("Exit");
+        exitMenuItem.setToolTipText("Exit the game");
+        exitMenuItem.addActionListener((event) -> System.exit(0));
+
+        fileMenu.add(exitMenuItem);
+        menuBar.add(fileMenu);
+
+        JMenu gameMenu = new JMenu("Game");
+        JMenuItem restartMenuItem = new JMenuItem("Restart");
+        restartMenuItem.setToolTipText("Restart the game");
+        gameMenu.add(restartMenuItem);
+        menuBar.add(gameMenu);
+
+        return menuBar;
     }
 
     private static JPanel createCardPanel(Game game){
@@ -88,4 +111,12 @@ public class Cluedo extends JFrame {
             }
         };
     }
+
+    public static void main(String[] args){
+        EventQueue.invokeLater(() -> {
+            Cluedo frame = new Cluedo();
+            frame.setVisible(true);
+        });
+    }
+
 }
