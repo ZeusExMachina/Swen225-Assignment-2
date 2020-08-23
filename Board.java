@@ -33,7 +33,7 @@ public class Board {
     private void setupRooms(){
         String[] defaultRoomNames = {"Kitchen", "Ball Room", "Conservatory",
                 "Billiard Room", "Dining Room", "Library",
-                "Hall", "Lounge", "Study", "Passageway"};
+                "Hall", "Lounge", "Study", "Cellar", "Passageway"};
         for(String roomName : defaultRoomNames){
             rooms.put(roomName, new Room(roomName));
         }
@@ -115,7 +115,8 @@ public class Board {
         List<Room> allRooms = new ArrayList<Room>(rooms.values());
         Collections.shuffle(allRooms);
         for(Room room : allRooms){
-            if(!room.getName().equals("Passageway")) {
+            if(!room.getName().equals("Passageway") &&
+                    !room.getName().equals("Cellar")) {
                 starting.add(room.getRandomRoomLocation());
             }
         }
