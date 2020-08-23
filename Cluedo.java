@@ -12,7 +12,7 @@ public class Cluedo extends JFrame {
     public static final Color PASSAGEWAY_COLOR = new Color(232,176,96);
     public static final Color ROOM_COLOR = new Color(201,191,192);
     public static final Color EMPTY_COLOR = new Color(79,156,100);
-    public static final Color WALL_COLOR = new Color(102,57,38);
+    public static final Color WALL_COLOR = new Color(87, 47, 32);
 
     public static void main(String[] args){
         EventQueue.invokeLater(() -> {
@@ -63,16 +63,21 @@ public class Cluedo extends JFrame {
                 this.setLayout(null);
 
                 Location current = g.getLocation(row,col);
-                Color color = EMPTY_COLOR;
+                Color color;
 
-                if (current.getRoom() != null) {
-                    if (current.getRoom().getName().equals("Passageway")) {
-                        color = PASSAGEWAY_COLOR;
-                        Border blackLine = BorderFactory.createLineBorder(Color.black);
-                        this.setBorder(blackLine);
-                    } else {
-                        color = ROOM_COLOR;
-                    }
+                if (current.getRoom() != null && current.getRoom().getName().equals("Passageway")) {
+                    color = PASSAGEWAY_COLOR;
+                    Border blackLine = BorderFactory.createLineBorder(Color.black);
+                    this.setBorder(blackLine);
+                } else {
+                    color = current.getRoom() != null ? ROOM_COLOR : EMPTY_COLOR;
+                    int wallThickness = 8;
+                    int north = current.northWall ? wallThickness : 0;
+                    int east = current.eastWall ? wallThickness : 0;
+                    int west = current.westWall ? wallThickness : 0;
+                    int south = current.southWall ? wallThickness : 0;
+                    Border wall = BorderFactory.createMatteBorder(north, west, south, east, WALL_COLOR);
+                    this.setBorder(wall);
                 }
                 this.setBackground(color);
             }
