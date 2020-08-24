@@ -132,6 +132,29 @@ public class Cluedo extends JFrame {
             }
         };
     }
+    
+    private boolean askYesOrNo(String askMessage, String windowTitle) {
+    	int response;
+    	while (true) {
+    		response = JOptionPane.showConfirmDialog(null, askMessage, windowTitle, JOptionPane.YES_NO_OPTION);
+    		if (response <= 0) { return true; }
+    		if (response > 0) { return false; }
+    	}
+    }
+    
+    private int askNumOfPlayers(String askMessage, String windowTitle) {
+    	Object response = JOptionPane.showInputDialog(null, askMessage, windowTitle, JOptionPane.DEFAULT_OPTION, null, new Integer[]{3,4,5,6}, 3);
+    	if (response == null) { return -1; }
+    	return (int)response;
+    }
+    
+    private void chooseCharacters(Game game, int numOfPlayers) {
+    	String playerName;
+    	
+    	for (int i = 1; i < numOfPlayers+1; i++) {
+    		playerName = JOptionPane.showInputDialog(null, "Player "+i+", Enter name:");
+    	}
+    }
 
     public static void main(String[] args){
         EventQueue.invokeLater(() -> {
