@@ -14,29 +14,50 @@ public class Cluedo extends JFrame {
     public static final Color EMPTY_COLOR = new Color(79,156,100);
     public static final Color WALL_COLOR = new Color(87, 47, 32);
 
+    private Game game;
+    private JTextField displayMessage;
+    
     Cluedo(){
-        initUI();
+    	super("Cluedo");
+    	this.game = new Game();
+        initUI(game);
+        setResizable(true);
+        setVisible(true);
     }
+    
+    public Game getGame() { return game; }
 
-    private void initUI(){
-        Game game = new Game();
-
+    private void initUI(Game game){
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-        setTitle("Cluedo");
         setLocationRelativeTo(null);
-        getRootPane().setLayout(new BorderLayout());
-
-        JPanel board = createBoardCanvas(game);
+        //getRootPane().setLayout(new BorderLayout());
+        getContentPane().setLayout(new BorderLayout());
+        
+        // --------------- TOP PANEL -----------------
+        JPanel topPanel = new JPanel();
+        ButtonGroup characterSelection = new ButtonGroup();
+        //topPanel.add(new JTextField());
+        for (int i = 0; i < Game.characters.size(); i++) {
+        	JRadioButton characterRadioButton = new JRadioButton(Game.characters.get(i));
+        	characterSelection.add(characterRadioButton);
+        	topPanel.add(characterRadioButton);
+        }
+        
+        // -------------- BOTTOM PANEL -----------------
         JPanel bottomPanel = new JPanel();
+        bottomPanel.setLayout(new BoxLayout(bottomPanel, BoxLayout.PAGE_AXIS));
         JPanel cards = createCardPanel(game);
         JPanel buttons = createButtonPanel(game);
+        this.displayMessage = new JTextField("Game start");
+        this.displayMessage.setEditable(false);
+        bottomPanel.add(displayMessage);
         bottomPanel.add(buttons);
         bottomPanel.add(cards);
-
-        getRootPane().add(createMenuBar(), BorderLayout.NORTH);
-        getRootPane().add(board, BorderLayout.CENTER);
-        getRootPane().add(bottomPanel, BorderLayout.SOUTH);
-
+        
+        getContentPane().add(createBoardCanvas(game), BorderLayout.CENTER);
+        getContentPane().add(topPanel, BorderLayout.NORTH);
+        getContentPane().add(bottomPanel, BorderLayout.SOUTH);
+        setJMenuBar(createMenuBar());
 
         pack();
     }
@@ -115,7 +136,17 @@ public class Cluedo extends JFrame {
     public static void main(String[] args){
         EventQueue.invokeLater(() -> {
             Cluedo frame = new Cluedo();
-            frame.setVisible(true);
+            boolean playing = frame.askYesOrNo("Welcome to Cluedo! Would you like to play?", "Cluedo Game");
+            while (playing) {
+            	// First, ask how many players will join
+            	int numOfPlayers = frame.askNumOfPlayers("How many players?", "Cluedo Game");
+            	if (numOfPlayers < 0) { }//break; }
+            	frame.chooseCharacters(frame.getGame(), numOfPlayers);
+            	
+            	playing = frame.askYesOrNo("Game over! Would you like to play again?", "Cluedo Game");
+            }
+            System.exit(0);
+            //if (!playing) { System.exit(0); }
         });
     }
 
