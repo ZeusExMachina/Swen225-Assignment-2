@@ -15,7 +15,7 @@ public class Game {
 	/**
 	 * A list of the names of all characters from Cluedo. Order goes clockwise starting from Miss Scarlet.
 	 */
-	private final List<String> characters = Arrays.asList("Miss Scarlet", "Colonel Mustard", "Mrs White", "Mr Green", "Mrs Peacock", "Professor Plum");
+	public static final List<String> characters = Arrays.asList("Miss Scarlet", "Colonel Mustard", "Mrs White", "Mr Green", "Mrs Peacock", "Professor Plum");
 	/**
 	 * A map of all players, and the player number they are associated with. Is implemented as a TreeMap to always maintain ordering of the key.
 	 */
