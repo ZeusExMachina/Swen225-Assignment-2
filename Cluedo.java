@@ -195,11 +195,11 @@ public class Cluedo extends JFrame {
     		playerNameField.setText("");
     		characterButtonGroup.clearSelection();
 		playerCreationSuccessful = false;
-    		while (playerName == null || playerName.length() < 1 || characterName == null || playerCreationSuccessful == false) {
+    		while (playerName == null || characterName == null || playerCreationSuccessful == false) {
 	    		JOptionPane.showOptionDialog(null, playerDetailsPanel, "Player "+i+" Character Selection", JOptionPane.PLAIN_MESSAGE, JOptionPane.QUESTION_MESSAGE, null, okOption, okOption[0]);
 	    		playerName = playerNameField.getText();
 	    		for (JRadioButton button : characterSet) {
-	    			if (button.isSelected()) { 
+	    			if (button.isSelected() && playerName.length() > 0) { 
 	    				characterName = button.getText();
 	    				button.setEnabled(false);
 	    			}
