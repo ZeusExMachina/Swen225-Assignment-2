@@ -33,7 +33,7 @@ public class Cluedo extends JFrame {
         while (playing) {
         	// First, ask how many players will join
         	int numOfPlayers = askNumOfPlayers();
-        	chooseCharacters(game, numOfPlayers);
+        	chooseCharacters(numOfPlayers);
         	
         	playing = askYesOrNo("Game over! Would you like to play again?", "Cluedo Game");
         }
@@ -160,7 +160,7 @@ public class Cluedo extends JFrame {
     	return (int)playerCountChoices.getSelectedItem();
     }
     
-    private void chooseCharacters(Game game, int numOfPlayers) {
+    private void chooseCharacters(int numOfPlayers) {
     	String playerName;
     	String characterName;
     	JPanel playerDetailsPanel = new JPanel();
