@@ -188,12 +188,14 @@ public class Cluedo extends JFrame {
         playerDetailsPanel.add(playerNameField);
         // Ask players for their name and the character they pick
         String[] okOption = {"Okay"};
+	boolean playerCreationSuccessful;
     	for (int i = 1; i < numOfPlayers+1; i++) {
     		playerName = null;
     		characterName = null;
     		playerNameField.setText("");
     		characterButtonGroup.clearSelection();
-    		while (playerName == null || characterName == null) {
+		playerCreationSuccessful = false;
+    		while (playerName == null || playerName.length() < 1 || characterName == null || playerCreationSuccessful == false) {
 	    		JOptionPane.showOptionDialog(null, playerDetailsPanel, "Player "+i+" Character Selection", JOptionPane.PLAIN_MESSAGE, JOptionPane.QUESTION_MESSAGE, null, okOption, okOption[0]);
 	    		playerName = playerNameField.getText();
 	    		for (JRadioButton button : characterSet) {
@@ -203,7 +205,7 @@ public class Cluedo extends JFrame {
 	    			}
 	    		}
 	    		// Send the details of a player to the model (Game class)
-	    		game.addPlayer(i, playerName, characterName);
+	    		playerCreationSuccessful = game.addPlayer(i, playerName, characterName);
     		}
     	}
     }
