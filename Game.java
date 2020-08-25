@@ -310,9 +310,13 @@ public class Game {
 	 * @param playerNumber is the player's number (e.g. Player 1)
 	 * @param playerName is the username of the player
 	 * @param characterName is the character played by the player
+	 * @return whether or not adding a new player was successful
 	 */
-	public void addPlayer(int playerNumber, String playerName, String characterName) {
+	public boolean addPlayer(int playerNumber, String playerName, String characterName) {
+		// First, check if that username is already used
+		for (Map.Entry<Integer,Player> player : players.entrySet()) { if (playerName.equals(player.getValue().getPlayerName())) { return false; } }
 		players.put(characters.indexOf(characterName), new Player(playerNumber, playerName, characterName));
+		return true;
 	}
 	
 	/**
