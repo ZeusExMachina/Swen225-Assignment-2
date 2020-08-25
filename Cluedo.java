@@ -1,3 +1,4 @@
+import java.util.*;
 import javax.swing.*;
 import javax.swing.border.Border;
 import javax.swing.border.EmptyBorder;
@@ -27,35 +28,37 @@ public class Cluedo extends JFrame {
     
     public Game getGame() { return game; }
 
+    public void playGame() {
+    	boolean playing = askYesOrNo("Welcome to Cluedo! Would you like to play?", "Cluedo Game");
+        while (playing) {
+        	// First, ask how many players will join
+        	int numOfPlayers = askNumOfPlayers();
+        	chooseCharacters(game, numOfPlayers);
+        	
+        	playing = askYesOrNo("Game over! Would you like to play again?", "Cluedo Game");
+        }
+        System.exit(0);
+        //if (!playing) { System.exit(0); }
+    }
+
     private void initUI(Game game){
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
         //getRootPane().setLayout(new BorderLayout());
         getContentPane().setLayout(new BorderLayout());
         
-        // --------------- TOP PANEL -----------------
-        JPanel topPanel = new JPanel();
-        ButtonGroup characterSelection = new ButtonGroup();
-        //topPanel.add(new JTextField());
-        for (int i = 0; i < Game.characters.size(); i++) {
-        	JRadioButton characterRadioButton = new JRadioButton(Game.characters.get(i));
-        	characterSelection.add(characterRadioButton);
-        	topPanel.add(characterRadioButton);
-        }
-        
         // -------------- BOTTOM PANEL -----------------
         JPanel bottomPanel = new JPanel();
         bottomPanel.setLayout(new BoxLayout(bottomPanel, BoxLayout.PAGE_AXIS));
         JPanel cards = createCardPanel(game);
         JPanel buttons = createButtonPanel(game);
-        this.displayMessage = new JTextField("Game start");
+        this.displayMessage = new JTextArea("Game start");
         this.displayMessage.setEditable(false);
         bottomPanel.add(displayMessage);
         bottomPanel.add(buttons);
         bottomPanel.add(cards);
         
         getContentPane().add(createBoardCanvas(game), BorderLayout.CENTER);
-        getContentPane().add(topPanel, BorderLayout.NORTH);
         getContentPane().add(bottomPanel, BorderLayout.SOUTH);
         setJMenuBar(createMenuBar());
 
@@ -142,34 +145,73 @@ public class Cluedo extends JFrame {
     	}
     }
     
-    private int askNumOfPlayers(String askMessage, String windowTitle) {
-    	Object response = JOptionPane.showInputDialog(null, askMessage, windowTitle, JOptionPane.DEFAULT_OPTION, null, new Integer[]{3,4,5,6}, 3);
-    	if (response == null) { return -1; }
-    	return (int)response;
+    private int askNumOfPlayers() {
+    	String[] okOption = {"Okay"};
+    	JPanel playerCountPanel = new JPanel();
+    	JPanel labelPanel = new JPanel();
+    	JComboBox<Integer> playerCountChoices = new JComboBox<Integer>(new Integer[]{3,4,5,6});
+    	
+    	playerCountPanel.setLayout(new BoxLayout(playerCountPanel, BoxLayout.PAGE_AXIS));
+    	labelPanel.setLayout(new BorderLayout());
+    	labelPanel.add(new JLabel("How many players?"), BorderLayout.WEST);
+    	playerCountPanel.add(labelPanel);
+    	playerCountPanel.add(playerCountChoices);
+    	JOptionPane.showOptionDialog(null, playerCountPanel, "Cludo Game", JOptionPane.PLAIN_MESSAGE, JOptionPane.QUESTION_MESSAGE, null, okOption, okOption[0]);
+    	return (int)playerCountChoices.getSelectedItem();
     }
     
     private void chooseCharacters(Game game, int numOfPlayers) {
     	String playerName;
-    	
+    	String characterName;
+    	JPanel playerDetailsPanel = new JPanel();
+    	JPanel selectCharLabelPanel = new JPanel();
+    	JPanel enterNameLabelPanel = new JPanel();
+    	JPanel characterPanel = new JPanel();
+    	JTextField playerNameField = new JTextField();
+    	ButtonGroup characterButtonGroup = new ButtonGroup();
+    	Set<JRadioButton> characterSet = new HashSet<JRadioButton>();
+    	// Set up the character selection popup screen
+    	playerDetailsPanel.setLayout(new BoxLayout(playerDetailsPanel, BoxLayout.PAGE_AXIS));
+    	selectCharLabelPanel.setLayout(new BorderLayout());
+    	selectCharLabelPanel.add(new JLabel("Select a character to play:"), BorderLayout.WEST);
+    	playerDetailsPanel.add(selectCharLabelPanel);
+        for (int i = 0; i < Game.characters.size(); i++) {
+        	JRadioButton characterRadioButton = new JRadioButton(Game.characters.get(i));
+        	characterButtonGroup.add(characterRadioButton);
+        	characterSet.add(characterRadioButton);
+        	characterPanel.add(characterRadioButton);
+        }
+        playerDetailsPanel.add(characterPanel);
+        enterNameLabelPanel.setLayout(new BorderLayout());
+        enterNameLabelPanel.add(new JLabel("Enter your name:"), BorderLayout.WEST);
+        playerDetailsPanel.add(enterNameLabelPanel);
+        playerDetailsPanel.add(playerNameField);
+        // Ask players for their name and the character they pick
+        String[] okOption = {"Okay"};
     	for (int i = 1; i < numOfPlayers+1; i++) {
-    		playerName = JOptionPane.showInputDialog(null, "Player "+i+", Enter name:");
+    		playerName = null;
+    		characterName = null;
+    		playerNameField.setText("");
+    		characterButtonGroup.clearSelection();
+    		while (playerName == null || characterName == null) {
+	    		JOptionPane.showOptionDialog(null, playerDetailsPanel, "Player "+i+" Character Selection", JOptionPane.PLAIN_MESSAGE, JOptionPane.QUESTION_MESSAGE, null, okOption, okOption[0]);
+	    		playerName = playerNameField.getText();
+	    		for (JRadioButton button : characterSet) {
+	    			if (button.isSelected()) { 
+	    				characterName = button.getText();
+	    				button.setEnabled(false);
+	    			}
+	    		}
+	    		// Send the details of a player to the model (Game class)
+	    		System.out.println(playerName + characterName);
+    		}
     	}
     }
 
     public static void main(String[] args){
         EventQueue.invokeLater(() -> {
             Cluedo frame = new Cluedo();
-            boolean playing = frame.askYesOrNo("Welcome to Cluedo! Would you like to play?", "Cluedo Game");
-            while (playing) {
-            	// First, ask how many players will join
-            	int numOfPlayers = frame.askNumOfPlayers("How many players?", "Cluedo Game");
-            	if (numOfPlayers < 0) { }//break; }
-            	frame.chooseCharacters(frame.getGame(), numOfPlayers);
-            	
-            	playing = frame.askYesOrNo("Game over! Would you like to play again?", "Cluedo Game");
-            }
-            System.exit(0);
-            //if (!playing) { System.exit(0); }
+            frame.playGame();
         });
     }
 
