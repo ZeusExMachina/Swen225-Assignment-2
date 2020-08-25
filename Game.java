@@ -305,44 +305,14 @@ public class Game {
 	}
 	
 	/**
-	 * Create some new players and  assign them a character 
-	 * randomly.
+	 * Add a new player to the game
 	 * 
-	 * @param playerCount is the number of players to create
+	 * @param playerNumber is the player's number (e.g. Player 1)
+	 * @param playerName is the username of the player
+	 * @param characterName is the character played by the player
 	 */
-	private void createPlayers(int playerCount) {
-		players.clear();
-		selectPlayerCharacters(playerCount);
-		assignCharacters();
-		//for (Map.Entry<Integer,Player> player : players.entrySet()) { System.out.println(player.toString()); }
-	}
-	
-	/**
-	 * Randomly select all characters that will be used by the players
-	 * 
-	 * @param playerCount is the number of characters to select
-	 */
-	private void selectPlayerCharacters(int playerCount) {
-		List<String> charactersNames = new ArrayList<String>(characters);
-		Collections.shuffle(charactersNames);
-		String charName = "";
-		for (int i = 0; i < playerCount; i++) {
-			charName = charactersNames.get(i);
-			players.put(characters.indexOf(charName), new Player(charName));
-		}
-	}
-	
-	/**
-	 * Assign each character to a player number (e.g. Player 1)
-	 */
-	private void assignCharacters() {
-		Map<Integer,Player> playersReplacement = new TreeMap<Integer,Player>();
-		int playerNum = 1;
-		for (Map.Entry<Integer,Player> player : players.entrySet()) { 
-			playersReplacement.put(playerNum,player.getValue());
-			playerNum++;
-		}
-		players = playersReplacement;
+	public void addPlayer(int playerNumber, String playerName, String characterName) {
+		players.put(characters.indexOf(characterName), new Player(playerNumber, playerName, characterName));
 	}
 	
 	/**
@@ -358,38 +328,6 @@ public class Game {
 			}
 		}
 		//for (Map.Entry<Integer,Player> player : players.entrySet()) { System.out.println(player.getValue().toString()); }
-	}
-	
-	/**
-	 * Greet the players to the game and ask how many people will 
-	 * play.
-	 *
-	 * @return the number of players
-	 */
-	private Integer getPlayerCount() {
-		System.out.print("Welcome to Cluedo!\nHow many players? (3-6 allowed).\nNumber of players: ");
-		String answer = scan.nextLine();
-		while (!answer.matches("[3456]")) {
-			System.out.print("Invalid input. Please enter the number of players (3-6 players only).\nNumber of players: ");
-			answer = scan.nextLine();
-		}
-		return Integer.parseInt(answer);
-	}
-	
-	/**
-	 * Ask the players if they want to start another game.
-	 *
-	 * @return whether or not a new game should be started
-	 */
-	private boolean askToPlayAgain() {
-		String input;
-		System.out.print("Would you like to play again? (yes/no): ");
-		while (true) {
-			input = scan.nextLine();
-			if (input.equalsIgnoreCase("y") || input.equalsIgnoreCase("yes")) { return true; } 
-			else if (input.equalsIgnoreCase("n") || input.equalsIgnoreCase("no")) { return false; }
-			System.out.print("Yes or no answers only: ");
-		}
 	}
 	
 	public static void main(String[] args) {
