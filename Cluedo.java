@@ -61,6 +61,13 @@ public class Cluedo extends JFrame {
         getContentPane().add(createBoardCanvas(game), BorderLayout.CENTER);
         getContentPane().add(bottomPanel, BorderLayout.SOUTH);
         setJMenuBar(createMenuBar());
+	    
+	addWindowListener(new WindowAdapter() {
+        	public void windowClosing(WindowEvent e) {
+        		int response = JOptionPane.showConfirmDialog(null, "Are you sure you want to leave the game?", "Closing Cluedo", JOptionPane.YES_NO_OPTION);
+        		if (response == JOptionPane.YES_OPTION) { System.exit(0); }
+        	}
+        });
 
         pack();
     }
