@@ -203,7 +203,7 @@ public class Cluedo extends JFrame {
 	    			}
 	    		}
 	    		// Send the details of a player to the model (Game class)
-	    		System.out.println(playerName + characterName);
+	    		game.addPlayer(i, playerName, characterName);
     		}
     	}
     }
