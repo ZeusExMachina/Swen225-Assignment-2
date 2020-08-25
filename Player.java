@@ -2,26 +2,42 @@ import java.util.*;
 
 public class Player {
 	private final Map<String, Card> hand;
-	private final String name;
+	private final int playerNumber;
+	private final String playerName;
+	private final String characterName;
 	private final Random rand;
 	public Game g;
 	private boolean canAccuse = true;
 	private Stack<Location> prevLocations;
 	private Set<Location> locationsVisited;
 
-	public Player(String name) {
+	public Player(int playerNum, String username, String character) {
 		this.hand = new HashMap<>();
-		this.name = name;
+		this.playerNumber = playerNum;
+		this.playerName = username;
+		this.characterName = character;
 		this.rand = new Random();
 		this.prevLocations = new Stack<Location>();
 		this.locationsVisited = new HashSet<Location>();
 	}
 	
 	/**
-	 * returns players name
+	 * Returns the number of this player (e.g. Player "1")
+	 * @return Integer
+	 */
+	public int getPlayerNumber() { return playerNumber; }
+	
+	/**
+	 * Returns the username of this Player
+	 * @return String
+	 */
+	public String getPlayerName() { return playerName; }
+	
+	/**
+	 * Returns the name of the character associated with this Player
 	 * @return String 
 	 */
-	public String getName() { return name; }
+	public String getCharacterName() { return characterName; }
 	
 	public boolean canAccuse() { return canAccuse; }
 	
@@ -356,5 +372,5 @@ public class Player {
 		return new CardTuple(charCard,weapCard,roomCard);
 	}
 	
-	public String toString() { return "name: " + name + ", in hand: " + hand.toString(); }
+	public String toString() { return "player " + playerNumber + " - username: " + playerName + ", character: " + characterName + ", in hand: " + hand.toString(); }
 }
