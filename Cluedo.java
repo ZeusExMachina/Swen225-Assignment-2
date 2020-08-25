@@ -192,30 +192,33 @@ public class Cluedo extends JFrame {
         playerDetailsPanel.add(enterNameLabelPanel);
         playerDetailsPanel.add(playerNameField);
         // Ask players for their name and the character they pick
-         String playerName;
+        String playerName;
     	String characterName;
     	boolean playerCreationSuccessful;
+    	JRadioButton selectedCharacterButton;
         String[] okOption = {"Okay"};
     	for (int i = 1; i < numOfPlayers+1; i++) {
-    		playerName = null;
-    		characterName = null;
-    		playerNameField.setText("");
-    		characterButtonGroup.clearSelection();
     		playerCreationSuccessful = false;
+    		selectedCharacterButton = null;
     		while (playerCreationSuccessful == false) {
+    			playerName = null;
+        		characterName = null;
+        		playerNameField.setText("");
+        		characterButtonGroup.clearSelection();
 	    		while (playerName == null || characterName == null) {
 		    		JOptionPane.showOptionDialog(null, playerDetailsPanel, "Player "+i+" Character Selection", JOptionPane.PLAIN_MESSAGE, JOptionPane.QUESTION_MESSAGE, null, okOption, okOption[0]);
 		    		playerName = playerNameField.getText();
 		    		for (JRadioButton button : characterSet) {
 		    			if (button.isSelected() && playerName.length() > 0) { 
 		    				characterName = button.getText();
-		    				button.setEnabled(false);
+		    				selectedCharacterButton = button;
 		    			}
 		    		}
 	    		}
 	    		// Send the details of a player to the model (Game class)
 	    		playerCreationSuccessful = game.addPlayer(i, playerName, characterName);
     		}
+    		selectedCharacterButton.setEnabled(false);
     	}
     }
 
