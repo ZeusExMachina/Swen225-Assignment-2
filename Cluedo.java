@@ -161,8 +161,6 @@ public class Cluedo extends JFrame {
     }
     
     private void chooseCharacters(int numOfPlayers) {
-    	String playerName;
-    	String characterName;
     	JPanel playerDetailsPanel = new JPanel();
     	JPanel selectCharLabelPanel = new JPanel();
     	JPanel enterNameLabelPanel = new JPanel();
@@ -187,22 +185,26 @@ public class Cluedo extends JFrame {
         playerDetailsPanel.add(enterNameLabelPanel);
         playerDetailsPanel.add(playerNameField);
         // Ask players for their name and the character they pick
+         String playerName;
+    	String characterName;
+    	boolean playerCreationSuccessful;
         String[] okOption = {"Okay"};
-	boolean playerCreationSuccessful;
     	for (int i = 1; i < numOfPlayers+1; i++) {
     		playerName = null;
     		characterName = null;
     		playerNameField.setText("");
     		characterButtonGroup.clearSelection();
-		playerCreationSuccessful = false;
-    		while (playerName == null || characterName == null || playerCreationSuccessful == false) {
-	    		JOptionPane.showOptionDialog(null, playerDetailsPanel, "Player "+i+" Character Selection", JOptionPane.PLAIN_MESSAGE, JOptionPane.QUESTION_MESSAGE, null, okOption, okOption[0]);
-	    		playerName = playerNameField.getText();
-	    		for (JRadioButton button : characterSet) {
-	    			if (button.isSelected() && playerName.length() > 0) { 
-	    				characterName = button.getText();
-	    				button.setEnabled(false);
-	    			}
+    		playerCreationSuccessful = false;
+    		while (playerCreationSuccessful == false) {
+	    		while (playerName == null || characterName == null) {
+		    		JOptionPane.showOptionDialog(null, playerDetailsPanel, "Player "+i+" Character Selection", JOptionPane.PLAIN_MESSAGE, JOptionPane.QUESTION_MESSAGE, null, okOption, okOption[0]);
+		    		playerName = playerNameField.getText();
+		    		for (JRadioButton button : characterSet) {
+		    			if (button.isSelected() && playerName.length() > 0) { 
+		    				characterName = button.getText();
+		    				button.setEnabled(false);
+		    			}
+		    		}
 	    		}
 	    		// Send the details of a player to the model (Game class)
 	    		playerCreationSuccessful = game.addPlayer(i, playerName, characterName);
