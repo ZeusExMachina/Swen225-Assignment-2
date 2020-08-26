@@ -9,20 +9,27 @@ import java.util.*;
 
 public class Game {
 	/**
+	 * A list of the names of all characters from Cluedo. Order goes clockwise starting from Miss Scarlet.
+	 */
+	public final List<String> characters = Arrays.asList("Miss Scarlet", "Colonel Mustard", "Mrs White", "Mr Green", "Mrs Peacock", "Professor Plum");
+	/**
+	 * A list of the names of all weapons from Cluedo.
+	 */
+	public final List<String> weapons = Arrays.asList("Candlestick", "Dagger", "Lead Pipe", "Revolver", "Rope", "Spanner");
+	/**
+	 * A list of the names of all rooms from Cluedo.
+	 */
+	public final List<String> rooms = Arrays.asList("Kitchen", "Ball Room", "Conservatory", "Dining Room", "Billiard Room", "Library", "Lounge", "Hall", "Study");
+	/**
 	 * A collection of all the cards in the game, mapped to by their names.
 	 */
 	private final Map<String,Card> allCards = new HashMap<String,Card>();
-	/**
-	 * A list of the names of all characters from Cluedo. Order goes clockwise starting from Miss Scarlet.
-	 */
-	public static final List<String> characters = Arrays.asList("Miss Scarlet", "Colonel Mustard", "Mrs White", "Mr Green", "Mrs Peacock", "Professor Plum");
 	/**
 	 * A map of all players, and the player number they are associated with. Is implemented as a TreeMap to always maintain ordering of the key.
 	 */
 	private Map<Integer,Player> players = new TreeMap<Integer,Player>();
 	/** 
 	 * A set to store all the cards used for the murder condition.
-	 * (suggestion: maybe make a new class for 3-card tuples for easy comparing)
 	 */
 	private CardTuple murderConditions;
 	/**
@@ -31,40 +38,55 @@ public class Game {
 	private Board board;
 	private int turnNum;
 	/**
-	 * A flag for if the game is over or not.
+	 * The UI associated with this game of Cluedo
 	 */
-	private boolean gameOver;
-
-	private Scanner scan;
+	private Cluedo userInterface;
 	
 	/**
 	 * Game constructor.
-	 *
 	 */
-	public Game() {
-		this.scan = new Scanner(System.in);
-		board = new Board();
+	public Game(Cluedo ui) {
+		this.board = new Board();
+		this.userInterface = ui;
 	}
 	
 	// ----------------- WHILE GAME RUNS -------------------
 	
 	/**
 	 * Play through the game until a player correctly guesses 
-	 * the murder condition, in which case they win and the 
-	 * game is over.
+	 * the murder condition, or all players cannot accuse.
 	 */
 	public void play() {
-		while (!gameOver) {
-			// Play a turn
-			System.out.println("Player " + turnNum + "'s [" + players.get(turnNum).getName() + "] turn. Cards: ");
-			if(players.get(turnNum).playTurn(this)) { gameOver = true; break; }
-			turnNum++;
-			if (turnNum > players.size()) { turnNum = 1; }
-			// Check if all players can still make an accusation
-			gameOver = !allPlayersCanAccuse();
+		int gameState = 0;
+		while (gameState == 0) {
+			// Play through each player's turn
+			gameState = playThroughPlayerTurns();
 		}
-		if (allPlayersCanAccuse()) { System.out.println("Congratulations! Player " + turnNum + " (" + players.get(turnNum).getName() + ") found the correct combination! They won!"); }
-		else { System.out.println("No player can accuse anymore. Nobody wins!"); }
+		if (gameState > 0) {
+			// A player won, now use gameState to get the player that won
+			Player winner = players.get(gameState-1);
+		} else {
+			// Every player made unsuccessful accusations, so nobody wins
+		}
+		
+		//if (allPlayersCanAccuse()) { System.out.println("Congratulations! Player " + turnNum + " (" + players.get(turnNum).getName() + ") found the correct combination! They won!"); }
+		//else { System.out.println("No player can accuse anymore. Nobody wins!"); }
+	}
+	
+	/**
+	 * Play through each player's turn once. Determine if the  
+	 * game has ended after each turn.
+	 * 
+	 * @return >0 if a Player accused correctly
+	 * 		   -1 if all Players accused incorrectly
+	 * 			0 if the game is still ongoing
+	 */
+	public int playThroughPlayerTurns() {
+		for (Map.Entry<Integer,Player> player : players.entrySet()) {
+			if (player.getValue().playTurn(this)) { return player.getKey()+1; }
+			if (!allPlayersCanAccuse()) { return -1; }
+		}
+		return 0;
 	}
 	
 	/**
@@ -74,15 +96,6 @@ public class Game {
 	 * @return
 	 */
 	public Card getCard(String cardName) { return allCards.get(cardName.toLowerCase()); }
-
-	/**
-	 * Provide access to the System.in Scanner for other classes
-	 *
-	 * @return the Game's Scanner
-	 */
-	public Scanner getScanner() {
-		return scan;
-	}
 
 	/**
 	 * Run through all players to find a player that can refute 
@@ -127,7 +140,6 @@ public class Game {
 				}
 			}
 		}
-		
 		return false;
 	}
 	
@@ -222,20 +234,15 @@ public class Game {
 	
 	/**
 	 * Set up a new Cluedo game.
-	 * 
-	 * @param playerCount is the number of players 
-	 * 		  in the game
 	 */
-	private void setup(int playerCount) {
+	public void setup() {
 		turnNum = 1;
-		gameOver = false;
 		// Create the cards and decide on the murder/win conditions
 		createAllCards();
 		List<Card> cardsToDeal = new ArrayList<Card>();
 		for (Map.Entry<String,Card> card : allCards.entrySet()) { cardsToDeal.add(card.getValue()); }
 		setUpMurder(cardsToDeal);
-		// Now create players and deal the rest of the cards to them
-		createPlayers(playerCount);
+		// Deal the rest of the cards to the players
 		dealCards(cardsToDeal);
 	}
 	
@@ -244,27 +251,9 @@ public class Game {
 	 */
 	private void createAllCards() {
 		allCards.clear();
-		allCards.put("miss scarlet", new Card("Miss Scarlet", Card.CardType.CHARACTER));
-		allCards.put("colonel mustard", new Card("Colonel Mustard", Card.CardType.CHARACTER));
-		allCards.put("mrs white", new Card("Mrs White", Card.CardType.CHARACTER));
-		allCards.put("mr green", new Card("Mr Green", Card.CardType.CHARACTER));
-		allCards.put("mrs peacock", new Card("Mrs Peacock", Card.CardType.CHARACTER));
-		allCards.put("professor plum", new Card("Professor Plum", Card.CardType.CHARACTER));
-		allCards.put("candlestick", new Card("Candlestick", Card.CardType.WEAPON));
-		allCards.put("dagger", new Card("Dagger", Card.CardType.WEAPON));
-		allCards.put("lead pipe", new Card("Lead Pipe", Card.CardType.WEAPON));
-		allCards.put("revolver", new Card("Revolver", Card.CardType.WEAPON));
-		allCards.put("rope", new Card("Rope", Card.CardType.WEAPON));
-		allCards.put("spanner", new Card("Spanner", Card.CardType.WEAPON));
-		allCards.put("kitchen", new Card("Kitchen", Card.CardType.ROOM));
-		allCards.put("ball room", new Card("Ball Room", Card.CardType.ROOM));
-		allCards.put("conservatory", new Card("Conservatory", Card.CardType.ROOM));
-		allCards.put("dining room", new Card("Dining Room", Card.CardType.ROOM));
-		allCards.put("billiard room", new Card("Billiard Room", Card.CardType.ROOM));
-		allCards.put("library", new Card("Library", Card.CardType.ROOM));
-		allCards.put("lounge", new Card("Lounge", Card.CardType.ROOM));
-		allCards.put("hall", new Card("Hall", Card.CardType.ROOM));
-		allCards.put("study", new Card("Study", Card.CardType.ROOM));
+		for (String character : characters) { allCards.put(character.toLowerCase(), new Card(character, Card.CardType.CHARACTER)); }
+		for (String weapon : weapons) { allCards.put(weapon.toLowerCase(), new Card(weapon, Card.CardType.WEAPON)); }
+		for (String room : rooms) { allCards.put(room.toLowerCase(), new Card(room, Card.CardType.ROOM)); }
 	}
 	
 	/**
@@ -280,10 +269,6 @@ public class Game {
 			if (i == 2) { roomCard = getMurderCard(cards, Card.CardType.ROOM); }
 		}
 		murderConditions = new CardTuple(charCard, weapCard, roomCard);
-		//System.out.println(murderConditions.characterCard());
-		//System.out.println(murderConditions.weaponCard());
-		//System.out.println(murderConditions.roomCard());
-		//System.out.println(murderConditions);
 	}
 	
 	/**
@@ -310,7 +295,7 @@ public class Game {
 	 * @param playerNumber is the player's number (e.g. Player 1)
 	 * @param playerName is the username of the player
 	 * @param characterName is the character played by the player
-	 * @return whether or not adding a new player was successful
+	 * @return false if a Player with the same playerName is already in the game, otherwise true
 	 */
 	public boolean addPlayer(int playerNumber, String playerName, String characterName) {
 		// First, check if that username is already used
@@ -331,24 +316,18 @@ public class Game {
 				if (cards.size() < 1) { break; }
 			}
 		}
-		//for (Map.Entry<Integer,Player> player : players.entrySet()) { System.out.println(player.getValue().toString()); }
 	}
 	
 	public static void main(String[] args) {
-		Game game;
+		/*Game game;
 		int playerCount;
 		boolean playing = true;
 		while (playing) {
 			// Set up and play the game
-
 			System.out.println("New game started");
-			game = new Game();
-			playerCount = game.getPlayerCount();
-			game.setup(playerCount);
+			game.setup();
 			game.play();
-			// Ask to play again
-			playing = game.askToPlayAgain();
 		}
-		System.out.println("Cluedo game ended. Thanks for playing!");
+		System.out.println("Cluedo game ended. Thanks for playing!");*/
 	}
 }
