@@ -11,6 +11,7 @@ public class Piece {
 		this.displayIcon = icon;
 		this.location = loc;
 		this.location.occupied = true;
+		loc.piece = this;
 	}
 	
 	public String icon() { return displayIcon; }
@@ -19,7 +20,9 @@ public class Piece {
 
 	public void setLocation(Location loc){
 		this.location.occupied = false;
+		this.location.piece = null;
 		this.location = loc;
-		this.location.occupied = true;
+		loc.occupied = true;
+		loc.piece = this;
 	}
 }
