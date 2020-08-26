@@ -230,6 +230,10 @@ public class Game {
 		return board.currentBoard[row][col];
 	}
 	
+	public Map<String,Piece> getPieces(){
+		return board.getPieces();
+	}
+	
 	// ----------------- PRE-GAME SETUP --------------------
 	
 	/**
