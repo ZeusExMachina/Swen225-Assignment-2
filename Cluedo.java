@@ -14,31 +14,31 @@ public class Cluedo extends JFrame {
     public static final Color ROOM_COLOR = new Color(201,191,192);
     public static final Color EMPTY_COLOR = new Color(79,156,100);
     public static final Color WALL_COLOR = new Color(87, 47, 32);
-
+    
     private Game game;
-    private JTextField displayMessage;
+    private JTextArea displayMessage;
+    private final String[] okOption = {"Okay"};
     
     Cluedo(){
     	super("Cluedo");
-    	this.game = new Game();
-        initUI(game);
-        setResizable(true);
-        setVisible(true);
     }
     
     public Game getGame() { return game; }
-
+    
     public void playGame() {
     	boolean playing = askYesOrNo("Welcome to Cluedo! Would you like to play?", "Cluedo Game");
         while (playing) {
+        	this.game = new Game(this);
+        	initUI(game);
         	// First, ask how many players will join
-        	int numOfPlayers = askNumOfPlayers();
-        	chooseCharacters(numOfPlayers);
+        	chooseCharacters(askNumOfPlayers());
+        	// Then, set up the game
+        	game.setup();
         	
+        	askForThreeCards("Choose three cards to Suggest:", "Make a Suggestion", "Suggest!").toString();
         	playing = askYesOrNo("Game over! Would you like to play again?", "Cluedo Game");
         }
         System.exit(0);
-        //if (!playing) { System.exit(0); }
     }
 
     private void initUI(Game game){
@@ -61,8 +61,8 @@ public class Cluedo extends JFrame {
         getContentPane().add(createBoardCanvas(game), BorderLayout.CENTER);
         getContentPane().add(bottomPanel, BorderLayout.SOUTH);
         setJMenuBar(createMenuBar());
-	    
-	addWindowListener(new WindowAdapter() {
+        
+        addWindowListener(new WindowAdapter() {
         	public void windowClosing(WindowEvent e) {
         		int response = JOptionPane.showConfirmDialog(null, "Are you sure you want to leave the game?", "Closing Cluedo", JOptionPane.YES_NO_OPTION);
         		if (response == JOptionPane.YES_OPTION) { System.exit(0); }
@@ -70,6 +70,8 @@ public class Cluedo extends JFrame {
         });
 
         pack();
+        setResizable(true);
+        setVisible(true);
     }
 
     private JMenuBar createMenuBar(){
@@ -93,7 +95,9 @@ public class Cluedo extends JFrame {
     }
 
     private static JPanel createCardPanel(Game game){
-        return new JPanel();
+    	JPanel cards = new JPanel();
+    	
+        return cards;
     }
 
     private static JPanel createButtonPanel(Game game){
@@ -153,7 +157,6 @@ public class Cluedo extends JFrame {
     }
     
     private int askNumOfPlayers() {
-    	String[] okOption = {"Okay"};
     	JPanel playerCountPanel = new JPanel();
     	JPanel labelPanel = new JPanel();
     	JComboBox<Integer> playerCountChoices = new JComboBox<Integer>(new Integer[]{3,4,5,6});
@@ -162,6 +165,7 @@ public class Cluedo extends JFrame {
     	labelPanel.setLayout(new BorderLayout());
     	labelPanel.add(new JLabel("How many players?"), BorderLayout.WEST);
     	playerCountPanel.add(labelPanel);
+    	
     	playerCountPanel.add(playerCountChoices);
     	JOptionPane.showOptionDialog(null, playerCountPanel, "Cludo Game", JOptionPane.PLAIN_MESSAGE, JOptionPane.QUESTION_MESSAGE, null, okOption, okOption[0]);
     	return (int)playerCountChoices.getSelectedItem();
@@ -180,8 +184,8 @@ public class Cluedo extends JFrame {
     	selectCharLabelPanel.setLayout(new BorderLayout());
     	selectCharLabelPanel.add(new JLabel("Select a character to play:"), BorderLayout.WEST);
     	playerDetailsPanel.add(selectCharLabelPanel);
-        for (int i = 0; i < Game.characters.size(); i++) {
-        	JRadioButton characterRadioButton = new JRadioButton(Game.characters.get(i));
+        for (int i = 0; i < game.characters.size(); i++) {
+        	JRadioButton characterRadioButton = new JRadioButton(game.characters.get(i));
         	characterButtonGroup.add(characterRadioButton);
         	characterSet.add(characterRadioButton);
         	characterPanel.add(characterRadioButton);
@@ -196,7 +200,6 @@ public class Cluedo extends JFrame {
     	String characterName;
     	boolean playerCreationSuccessful;
     	JRadioButton selectedCharacterButton;
-        String[] okOption = {"Okay"};
     	for (int i = 1; i < numOfPlayers+1; i++) {
     		playerCreationSuccessful = false;
     		selectedCharacterButton = null;
@@ -220,6 +223,49 @@ public class Cluedo extends JFrame {
     		}
     		selectedCharacterButton.setEnabled(false);
     	}
+    }
+    
+    /**
+     * Ask a Player to select 3 cards
+     * 
+     * @param message is the message to display (e.g. "Choose three cards:")
+     * @param titleMessage is the title of the popup window (e.g. "Make a suggestion")
+     * @param buttonName is the text to display on the confirmation button (e.g. "Okay" or "Accuse!")
+     * @return a CardTuple consisting of the 3 chosen cards
+     */
+    public CardTuple askForThreeCards(String message, String titleMessage, String buttonName) {
+    	JPanel overallPanel = new JPanel();
+    	overallPanel.setLayout(new BoxLayout(overallPanel, BoxLayout.PAGE_AXIS));
+    	
+    	JPanel labelPanel = new JPanel();
+    	labelPanel.setLayout(new BorderLayout());
+    	labelPanel.add(new JLabel(message));
+    	
+    	JPanel selectionPanel = new JPanel();
+    	selectionPanel.setLayout(new GridLayout(3,2));
+    	
+    	String[] charactersArray = new String[game.characters.size()];
+    	JComboBox<String> characterChoices = new JComboBox<String>(game.characters.toArray(charactersArray));
+    	selectionPanel.add(new JLabel("Select a Character:"), BorderLayout.WEST);
+    	selectionPanel.add(characterChoices, BorderLayout.EAST);
+    	
+    	String[] weaponsArray = new String[game.weapons.size()];
+    	JComboBox<String> weaponChoices = new JComboBox<String>(game.weapons.toArray(weaponsArray));
+    	selectionPanel.add(new JLabel("Select a Weapon:"), BorderLayout.WEST);
+    	selectionPanel.add(weaponChoices, BorderLayout.EAST);
+    	
+    	String[] roomsArray = new String[game.rooms.size()];
+    	JComboBox<String> roomChoices = new JComboBox<String>(game.rooms.toArray(roomsArray));
+    	selectionPanel.add(new JLabel("Select a Room:"), BorderLayout.WEST);
+    	selectionPanel.add(roomChoices, BorderLayout.EAST);
+    	
+    	overallPanel.add(labelPanel);
+    	overallPanel.add(new JPanel());
+    	overallPanel.add(selectionPanel);
+    	
+    	String[] buttonOption = {buttonName};
+    	JOptionPane.showOptionDialog(null, overallPanel, titleMessage, JOptionPane.PLAIN_MESSAGE, JOptionPane.QUESTION_MESSAGE, null, buttonOption, buttonOption[0]);
+    	return new CardTuple(game.getCard((String)characterChoices.getSelectedItem()), game.getCard((String)weaponChoices.getSelectedItem()), game.getCard((String)roomChoices.getSelectedItem()));
     }
 
     public static void main(String[] args){
