@@ -267,6 +267,10 @@ public class Cluedo extends JFrame {
     	JOptionPane.showOptionDialog(null, overallPanel, titleMessage, JOptionPane.PLAIN_MESSAGE, JOptionPane.QUESTION_MESSAGE, null, buttonOption, buttonOption[0]);
     	return new CardTuple(game.getCard((String)characterChoices.getSelectedItem()), game.getCard((String)weaponChoices.getSelectedItem()), game.getCard((String)roomChoices.getSelectedItem()));
     }
+	
+    public void displayText(String text) {
+    	displayMessage.setText(text);
+    }
 
     public static void main(String[] args){
         EventQueue.invokeLater(() -> {
