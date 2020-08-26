@@ -14,6 +14,7 @@ public class Location {
     boolean westWall;
     Point point;
     boolean occupied;
+    Piece piece;
 
     public Location(Room room, String walls, int boardRow, int boardColumn){
         this.room = room;
@@ -26,6 +27,10 @@ public class Location {
 
     public Room getRoom() {
         return room;
+    }
+
+    public Piece getPiece() {
+        return piece;
     }
 
     public boolean canMoveUp(Board board){
