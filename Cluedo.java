@@ -148,6 +148,94 @@ public class Cluedo extends JFrame {
     }
 
     private static JPanel createButtonPanel(Game game){
+		JPanel panel = new JPanel();
+		panel.setBounds(40,80,200,200);    
+        panel.setBackground(Color.gray);  
+        
+        //roll button
+		JButton b1=new JButton("Roll");     
+        b1.setBounds(50,600,50,30);    
+        b1.setBackground(Color.GREEN);
+        if(game.canRoll() == false || game.canSuggest() == false) {
+        	b1.setEnabled(false);
+        	b1.setBackground(Color.gray);
+        }
+        
+        if(game.canRoll() == true) {
+        	b1.setEnabled(true);
+        	b1.setBackground(Color.GREEN);
+        }
+        
+        b1.addActionListener(new ActionListener(){
+        	public void actionPerformed(ActionEvent e){
+        		//roll()
+        		game.setMoved(true);
+                game.setRolled(false); 
+            }
+        });
+        
+        //Suggest button
+        JButton b2 = new JButton("Suggest");
+        b2.setBounds(150,600,50,30);    
+        b2.setBackground(Color.GREEN);
+        if(game.canSuggest() == false) {
+        	b2.setEnabled(false);
+        	b2.setBackground(Color.gray);
+        }
+        
+        if(game.canSuggest() == true) {
+        	b2.setEnabled(true);
+        	b2.setBackground(Color.GREEN);
+        }
+        
+        b2.addActionListener(new ActionListener(){
+        	public void actionPerformed(ActionEvent e){  
+        		//suggest()
+        		game.setAccused(true);
+                game.setSuggested(false); 
+            }
+        });
+        
+        //Accuse button
+        JButton b3 = new JButton("Accuse");
+        b3.setBounds(250,600,50,30);    
+        b3.setBackground(Color.GREEN);
+        if(game.canAccuse() == false) {
+        	b3.setEnabled(false);
+        	b3.setBackground(Color.gray);
+        }
+        
+        if(game.canAccuse() == true) {
+        	b3.setEnabled(true);
+        	b3.setBackground(Color.GREEN);
+        }
+        
+        b3.addActionListener(new ActionListener(){
+        	public void actionPerformed(ActionEvent e){
+        		//accuse();
+                game.setAccused(false); 
+            }
+        });
+        
+        //Move button
+        JButton b4 = new JButton("Move");
+        b4.setBounds(350,600,50,30);    
+        b4.setBackground(Color.GREEN);
+        if(game.canMove() == false) {
+        	b4.setEnabled(false);
+        	b4.setBackground(Color.gray);
+        }
+        
+        if(game.canMove() == true) {
+        	b4.setEnabled(true);
+        	b4.setBackground(Color.GREEN);
+        }
+        
+        b4.addActionListener(new ActionListener(){
+        	public void actionPerformed(ActionEvent e){  
+                game.setMoved(true); 
+            }
+        });
         return new JPanel();
     }
 
