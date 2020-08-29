@@ -48,6 +48,28 @@ public class Cluedo extends JFrame {
         }
         System.exit(0);
     }
+	
+    public Card refuting(Set<Card> refuteOptions) {
+		Card refuteCard = null;
+		JPanel overallPanel = new JPanel();
+        overallPanel.setLayout(new BoxLayout(overallPanel, BoxLayout.PAGE_AXIS));
+        JComboBox<String> refutingOptions = new JComboBox<String>();
+        
+        for(Card c : refuteOptions) {
+        	refutingOptions.addItem(c.toString());
+        }
+        
+        overallPanel.add(new JLabel("Choose Card to refute"));
+        overallPanel.add(refutingOptions);
+        
+        for(Card c : refuteOptions) {
+        	if(c.toString().equals(refutingOptions.getSelectedItem())) {
+        		refuteCard = c;
+        	}
+        }
+        return refuteCard;
+    }
+	
 
     private void initUI(Game game){
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
@@ -119,7 +141,7 @@ public class Cluedo extends JFrame {
         }
     }
 
-
+    
 
     private JMenuBar createMenuBar(){
         JMenuBar menuBar = new JMenuBar();
