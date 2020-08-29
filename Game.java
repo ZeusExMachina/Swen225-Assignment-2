@@ -125,6 +125,27 @@ public class Game {
 		return refuteCard;
 	}
 	
+	public Card refutationProcessV2(Player suggester, CardTuple suggestion) {
+		Card refuteCard = null;
+		int playerNum;
+		Player player;
+		for (int i = 1; i <= players.size(); i++) {
+			// Calculate the correct player number to get from the collection of players
+			playerNum = i + turnNum;
+			if (playerNum > players.size()) { playerNum -= players.size(); }
+			// Get the player and ask them to refute
+			player = players.get(playerNum);
+			if (!player.equals(suggester)) {
+				Set<Card> refuteOptions = player.refuteV2(suggestion);
+				if (refuteOptions != null) {
+					refuteCard = userInterface.refuting(refuteOptions);
+					break;
+				}
+			}
+		}
+		return refuteCard;
+	}
+	
 	/**
 	 * Compares 3 cards to the murder conditions.
 	 * 
