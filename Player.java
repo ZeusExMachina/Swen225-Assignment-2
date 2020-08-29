@@ -238,6 +238,30 @@ public class Player {
 		}
 		return returnCard;
 	}
+	
+	public Set<Card> refuteV2(CardTuple tup){
+		Set<Card> refuteOptions = new HashSet<Card>();
+		
+		for(Card c : hand.values()) {
+			if(tup.characterCard().equals(c)) {
+				refuteOptions.add(c);
+			}
+			if(tup.weaponCard().equals(c)) {
+				refuteOptions.add(c);;
+			}
+			if(tup.roomCard().equals(c)) {
+				refuteOptions.add(c);
+			}
+
+
+		}
+		
+		if(refuteOptions.size() > 0) {
+			return refuteOptions;
+		}
+		
+		else {return null;}
+	}
 
 	/**
 	 * Creates a card tuple of refutable cards then asks player which one they would like to refute with
