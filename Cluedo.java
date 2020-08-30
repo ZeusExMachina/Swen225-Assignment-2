@@ -8,6 +8,12 @@ import javax.swing.*;
 import javax.swing.border.Border;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.ComponentEvent;
+import java.awt.event.ComponentListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 
 public class Cluedo extends JFrame {
 
@@ -20,7 +26,7 @@ public class Cluedo extends JFrame {
     private final int CARD_WIDTH = 80;
     private final int CARD_HEIGHT = 112;
     private final int DIE_SIZE = 50;
-    private final int MAX_CARD_COUNT = 7;
+    private final int MAX_CARD_COUNT = 6;
 
     public static Map<String, Image> pieceImages = new HashMap<String, Image>();
     public static Map<String, Image> cardImages = new HashMap<String, Image>();
@@ -33,6 +39,10 @@ public class Cluedo extends JFrame {
     private JLabel die1, die2;
     private JPanel suggestedCardsPanel;
     private JPanel currentPlayerHand;
+    private JButton rollButton;
+    private JButton suggestButton;
+    private JButton accuseButton;
+    private JButton endTurnButton;
     private ImageIcon emptyCardSlotImage;
     private final String[] okOption = {"Okay"};
 
@@ -42,34 +52,75 @@ public class Cluedo extends JFrame {
 
     public Game getGame() { return game; }
 
-    public void playGame() {
-        boolean playing = askYesOrNo("Welcome to Cluedo! Would you like to play?", "Cluedo Game");
-        //while (playing) {
-            this.game = new Game(this);
-            initUI(game);
-            // First, ask how many players will join
-            chooseCharacters(askNumOfPlayers());
-            // Then, set up the game
-            game.setup();
-            
-            Player player = new Player(1, "Meep", "Colonel Mustard", game);
-            game.setCurrentPlayer(player);
+    /*public void playGame() {
+        boolean playing = ;
+        while (playing) {
+
+            Player player = new Player(1, "Meep", "Colonel Mustard", this.game);
             player.giveCard(game.getCard("Miss Scarlet"));
             player.giveCard(game.getCard("Colonel Mustard"));
             player.giveCard(game.getCard("Mr Green"));
             player.giveCard(game.getCard("Spanner"));
             player.giveCard(game.getCard("Candlestick"));
             player.giveCard(game.getCard("Revolver"));
-            //player.giveCard(game.getCard("Lead Pipe"));
+            player.giveCard(game.getCard("Lead Pipe"));
             showPlayerHand(player);
             
-            //CardTuple suggestion = askForThreeCards("Choose three cards to Suggest:", "Make a Suggestion", "Suggest!");
-            //showSuggestion(player, suggestion);
-            //showDiceRoll(4, 2);
-            
-            //playing = askYesOrNo("Game over! Would you like to play again?", "Cluedo Game");
-        //}
+            CardTuple suggestion = askForThreeCards("Choose three cards to Suggest:", "Make a Suggestion", "Suggest!");
+            showSuggestion(player, suggestion);
+            showDiceRoll(4, 2);
+
+            // After a game is finished, ask if they want to play again
+            playing = 
+        }
         //System.exit(0);
+    }*/
+    
+    public void setupAndRunCluedo() {
+    	if (askYesOrNo("Welcome to Cluedo! Would you like to play?", "Cluedo Game")) {
+    		// Initialize the Game model and the UI
+            this.game = new Game(this);
+            initUI(game);
+            // Ask how many players will join
+            chooseCharacters(askNumOfPlayers());
+            // Set up the game
+            game.setup();
+            // Play the game
+            game.play();
+    	} else { System.exit(0); }
+    }
+    
+    public void finishGame(String endMessage, CardTuple murderConditions) {
+    	// Display the end-of-game result, as well as the murder conditions of the game
+    	JPanel endGamePanel = new JPanel();
+    	endGamePanel.setLayout(new BoxLayout(endGamePanel, BoxLayout.PAGE_AXIS));
+    	
+    	JPanel labelPanel1 = new JPanel(new BorderLayout());
+    	labelPanel1.add(new JLabel(endMessage, JLabel.LEFT), BorderLayout.WEST);
+    	endGamePanel.add(labelPanel1);
+    	endGamePanel.add(new JPanel());
+    	
+    	JPanel labelPanel2 = new JPanel(new BorderLayout());
+    	labelPanel2.add(new JLabel("Winning combination:", JLabel.LEFT), BorderLayout.WEST);
+    	endGamePanel.add(labelPanel2);
+    	
+    	JPanel winConditionPanel = new JPanel(new FlowLayout());
+    	ImageIcon cardIcon = new ImageIcon(cardImages.get(murderConditions.characterCard().getName()).getScaledInstance(CARD_WIDTH, CARD_HEIGHT, Image.SCALE_SMOOTH));
+    	winConditionPanel.add(new JLabel(cardIcon));
+    	cardIcon = new ImageIcon(cardImages.get(murderConditions.weaponCard().getName()).getScaledInstance(CARD_WIDTH, CARD_HEIGHT, Image.SCALE_SMOOTH));
+    	winConditionPanel.add(new JLabel(cardIcon));
+    	cardIcon = new ImageIcon(cardImages.get(murderConditions.roomCard().getName()).getScaledInstance(CARD_WIDTH, CARD_HEIGHT, Image.SCALE_SMOOTH));
+    	winConditionPanel.add(new JLabel(cardIcon));
+    	endGamePanel.add(winConditionPanel);
+    	
+    	JOptionPane.showMessageDialog(null, endGamePanel);
+    	
+    	// Ask user if they want to play again
+    	if (askYesOrNo("Game over! Would you like to play again?", "Cluedo Game")) { 
+    		this.dispose();
+    		setupAndRunCluedo();
+    	}
+    	else { System.exit(0); }
     }
     
     public Card refuting(Set<Card> refuteOptions) {
@@ -123,7 +174,7 @@ public class Cluedo extends JFrame {
     private void loadPieceImages(){
         try{
             // Load Weapon Images
-            pieceImages.put("Spanner", ImageIO.read(new File("resources/spanner.png")));
+        	pieceImages.put("Spanner", ImageIO.read(new File("resources/spanner.png")));
             pieceImages.put("Revolver" , ImageIO.read(new File("resources/revolver.png")));
             pieceImages.put("Rope" , ImageIO.read(new File("resources/rope.png")));
             pieceImages.put("Lead Pipe" , ImageIO.read(new File("resources/lead_pipe.png")));
@@ -167,7 +218,7 @@ public class Cluedo extends JFrame {
     		cardImages.put("Dining Room", ImageIO.read(new File("resources/dining_room_card.png")));
     		cardImages.put("Billiard Room", ImageIO.read(new File("resources/billiard_room_card.png")));
     		cardImages.put("Library", ImageIO.read(new File("resources/library_card.png")));
-    		cardImages.put("lounge", ImageIO.read(new File("resources/lounge_card.png")));
+    		cardImages.put("Lounge", ImageIO.read(new File("resources/lounge_card.png")));
     		cardImages.put("Hall", ImageIO.read(new File("resources/hall_card.png")));
     		cardImages.put("Study", ImageIO.read(new File("resources/study_card.png")));
     		
@@ -216,11 +267,11 @@ public class Cluedo extends JFrame {
     	JPanel leftPanel = new JPanel(new GridBagLayout());
     	GridBagConstraints constraints = new GridBagConstraints();
         
-    	constraints.fill = GridBagConstraints.BOTH;
+    	constraints.fill = GridBagConstraints.VERTICAL;
         constraints.weightx = 0.1;
     	
         // Player Name Display
-        this.currentPlayerNameDisplay = new JLabel("[Current Player's Name Here]");
+        this.currentPlayerNameDisplay = new JLabel("[Current Player's Name Here]", JLabel.CENTER);
         this.currentPlayerNameDisplay.setFont(currentPlayerNameDisplay.getFont().deriveFont(15.0f));
         constraints.gridx = 0; constraints.gridy = 0;
         constraints.weighty = 0.15;
@@ -260,8 +311,8 @@ public class Cluedo extends JFrame {
     }
 
     private JPanel createButtonPanel(Game game){
-        JPanel panel = new JPanel();
-        panel.setBounds(40,80,200,200);
+		JPanel panel = new JPanel();
+		panel.setBounds(40,80,200,200);
         panel.setBackground(Color.gray);
         panel.setLayout(new GridBagLayout());
         GridBagConstraints constraints = new GridBagConstraints();
@@ -269,40 +320,21 @@ public class Cluedo extends JFrame {
         constraints.insets = new Insets(12, 12, 12 , 12);
 
         // Roll button
-        JButton rollButton=new JButton("Move");
-        rollButton.setFont(rollButton.getFont().deriveFont(16.0f));
-        rollButton.setBackground(PASSAGEWAY_COLOR);
-        if(!game.canMove() || !game.canSuggest()) {
-            rollButton.setEnabled(false);
-            rollButton.setBackground(Color.gray);
-        }
-
-        if(game.canMove()) {
-            rollButton.setEnabled(true);
-            rollButton.setBackground(PASSAGEWAY_COLOR);
-        }
-
-        rollButton.addActionListener(new ActionListener(){
-            public void actionPerformed(ActionEvent e){
-                Integer[] diceResult = game.prepareForMove();
-                game.setMoved(true);
-                showDiceRoll(diceResult[0], diceResult[1]);
-                // Set all other controls to inaccessible (to be
-                // restored when the move is finished).
-            }
-        });
-
+		rollButton=new JButton("Roll"); 
+		rollButton.setFont(rollButton.getFont().deriveFont(16.0f));
+        setRollButton(true);
+        rollButton.addActionListener((event) -> game.playerRollsDice());
         constraints.weightx = 1.0;
-        constraints.weighty = 0.35;
+        constraints.weighty = 0.3;
         constraints.gridx = 0; constraints.gridy = 0;
         panel.add(rollButton, constraints);
-
+        
         // Spacer
         constraints.gridx = 1; constraints.gridy = 0;
         JPanel spacer = new JPanel();
         spacer.setBackground(Color.gray);
         panel.add(spacer, constraints);
-
+        
         // Dice display
         this.die1 = new JLabel();
         this.die2 = new JLabel();
@@ -311,64 +343,34 @@ public class Cluedo extends JFrame {
         panel.add(die1, constraints);
         constraints.gridx = 3; constraints.gridy = 0;
         panel.add(die2, constraints);
-
+        
         //Suggest button
-        JButton suggestButton = new JButton("Suggest");
+        suggestButton = new JButton("Suggest");
         suggestButton.setFont(suggestButton.getFont().deriveFont(16.0f));
-        suggestButton.setBackground(PASSAGEWAY_COLOR);
-        if(!game.canSuggest()) {
-            suggestButton.setEnabled(false);
-            suggestButton.setBackground(Color.gray);
-        }
-
-        if(game.canSuggest()) {
-            suggestButton.setEnabled(true);
-            suggestButton.setBackground(PASSAGEWAY_COLOR);
-        }
-
-        suggestButton.addActionListener(new ActionListener(){
-            public void actionPerformed(ActionEvent e){
-                //suggest()
-                game.setAccused(true);
-                game.setSuggested(false);
-            }
-        });
+        setSuggestButton(true);
+        suggestButton.addActionListener((event) -> game.suggestionMade());
         constraints.gridwidth = 2;
         constraints.gridx = 0; constraints.gridy = 1;
         panel.add(suggestButton, constraints);
 
         //Accuse button
-        JButton accuseButton = new JButton("Accuse");
+        accuseButton = new JButton("Accuse");
         accuseButton.setFont(accuseButton.getFont().deriveFont(16.0f));
-        accuseButton.setBackground(PASSAGEWAY_COLOR);
-        if(!game.canAccuse()) {
-            accuseButton.setEnabled(false);
-            accuseButton.setBackground(Color.gray);
-        }
-
-        if(game.canAccuse()) {
-            accuseButton.setEnabled(true);
-            accuseButton.setBackground(PASSAGEWAY_COLOR);
-        }
-
-        accuseButton.addActionListener(new ActionListener(){
-            public void actionPerformed(ActionEvent e){
-                //accuse();
-                game.setAccused(false);
-            }
-        });
+        setAccuseButton(true);
+        accuseButton.addActionListener((event) -> game.accusationMade());
         constraints.gridx = 2; constraints.gridy = 1;
         panel.add(accuseButton, constraints);
 
         // End Turn Button
-        JButton endTurnButton = new JButton("End Turn");
+        endTurnButton = new JButton("End Turn");
         endTurnButton.setFont(endTurnButton.getFont().deriveFont(16.0f));
         endTurnButton.setBackground(PASSAGEWAY_COLOR);
+        endTurnButton.addActionListener((event) -> game.endCurrentTurn());
         constraints.weighty = 0.3;
         constraints.gridwidth = 4;
         constraints.gridx = 0; constraints.gridy = 2;
         panel.add(endTurnButton, constraints);
-
+        
         return panel;
     }
     
@@ -388,7 +390,7 @@ public class Cluedo extends JFrame {
     
     private JPanel createCardPanel(Game game){
         JPanel cardPanel = new JPanel(new BorderLayout());
-        cardPanel.setPreferredSize(new Dimension(4*CARD_WIDTH+50, 2*CARD_HEIGHT));
+        cardPanel.setPreferredSize(new Dimension(3*CARD_WIDTH+50, 2*CARD_HEIGHT));
         
         JPanel labelPanel = new JPanel(new BorderLayout());
         JLabel label = new JLabel("Cards in Hand:");
@@ -415,7 +417,7 @@ public class Cluedo extends JFrame {
         return board;
     }
 
-    class BoardSquare extends JPanel{
+    static class BoardSquare extends JPanel{
 
         Location cell;
         Game game;
@@ -427,12 +429,7 @@ public class Cluedo extends JFrame {
             addMouseListener(new MouseAdapter() {
                 @Override
                 public void mouseReleased(MouseEvent e) {
-                    if(game.movePlayerByMouse(location)){
-                        getTopLevelAncestor().repaint();
-                    }
-                    else{
-                        // show invalid move message
-                    }
+                    System.out.println(cell.point.toString());
                 }
             });
         }
@@ -450,40 +447,40 @@ public class Cluedo extends JFrame {
                         Piece current = p.getValue();
                         switch(current.icon()){
                             case "c":
-                                g2d.drawImage(Cluedo.pieceImages.get("Candlestick"), padding, padding, width, height,this);
+                            	g2d.drawImage(Cluedo.pieceImages.get("Candlestick"), padding, padding, width, height,this);
                                 break;
                             case "d":
-                                g2d.drawImage(Cluedo.pieceImages.get("Dagger"), padding, padding, width, height,this);
+                            	g2d.drawImage(Cluedo.pieceImages.get("Dagger"), padding, padding, width, height,this);
                                 break;
                             case "l":
-                                g2d.drawImage(Cluedo.pieceImages.get("Lead Pipe"), padding, padding, width, height,this);
+                            	g2d.drawImage(Cluedo.pieceImages.get("Lead Pipe"), padding, padding, width, height,this);
                                 break;
                             case "g":
-                                g2d.drawImage(Cluedo.pieceImages.get("Revolver"), padding, padding, width, height,this);
+                            	g2d.drawImage(Cluedo.pieceImages.get("Revolver"), padding, padding, width, height,this);
                                 break;
                             case "r":
-                                g2d.drawImage(Cluedo.pieceImages.get("Rope"), padding, padding, width, height,this);
+                            	g2d.drawImage(Cluedo.pieceImages.get("Rope"), padding, padding, width, height,this);
                                 break;
                             case "s":
-                                g2d.drawImage(Cluedo.pieceImages.get("Spanner"), padding, padding, width, height,this);
+                            	g2d.drawImage(Cluedo.pieceImages.get("Spanner"), padding, padding, width, height,this);
                                 break;
                             case "P":
-                                g2d.drawImage(Cluedo.pieceImages.get("Miss Peacock"), padding, padding, width, height,this);
+                            	g2d.drawImage(Cluedo.pieceImages.get("Miss Peacock"), padding, padding, width, height,this);
                                 break;
                             case "L":
-                                g2d.drawImage(Cluedo.pieceImages.get("Professor Plum"), padding, padding, width, height,this);
+                            	g2d.drawImage(Cluedo.pieceImages.get("Professor Plum"), padding, padding, width, height,this);
                                 break;
                             case "M":
-                                g2d.drawImage(Cluedo.pieceImages.get("Colonel Mustard"), padding, padding, width, height,this);
+                            	g2d.drawImage(Cluedo.pieceImages.get("Colonel Mustard"), padding, padding, width, height,this);
                                 break;
                             case "W":
-                                g2d.drawImage(Cluedo.pieceImages.get("Mrs White"), padding, padding, width, height,this);
+                            	g2d.drawImage(Cluedo.pieceImages.get("Mrs White"), padding, padding, width, height,this);
                                 break;
                             case "G":
-                                g2d.drawImage(Cluedo.pieceImages.get("Mr Green"), padding, padding, width, height,this);
+                            	g2d.drawImage(Cluedo.pieceImages.get("Mr Green"), padding, padding, width, height,this);
                                 break;
                             case "S":
-                                g2d.drawImage(Cluedo.pieceImages.get("Miss Scarlet"), padding, padding, width, height,this);
+                            	g2d.drawImage(Cluedo.pieceImages.get("Miss Scarlet"), padding, padding, width, height,this);
                                 break;
                         }
                     }
@@ -536,7 +533,8 @@ public class Cluedo extends JFrame {
         int response;
         while (true) {
             response = JOptionPane.showConfirmDialog(null, askMessage, windowTitle, JOptionPane.YES_NO_OPTION);
-            return response <= 0;
+            if (response <= 0) { return true; }
+            if (response > 0) { return false; }
         }
     }
 
@@ -551,7 +549,7 @@ public class Cluedo extends JFrame {
         playerCountPanel.add(labelPanel);
 
         playerCountPanel.add(playerCountChoices);
-        JOptionPane.showOptionDialog(null, playerCountPanel, "Cluedo Game", JOptionPane.PLAIN_MESSAGE, JOptionPane.QUESTION_MESSAGE, null, okOption, okOption[0]);
+        JOptionPane.showOptionDialog(null, playerCountPanel, "Cludo Game", JOptionPane.PLAIN_MESSAGE, JOptionPane.QUESTION_MESSAGE, null, okOption, okOption[0]);
         return (int)playerCountChoices.getSelectedItem();
     }
 
@@ -658,8 +656,14 @@ public class Cluedo extends JFrame {
      * Update the game state description
      * @param text
      */
-    public void displayGameState(String text) {
+    public void displayGameStateMessage(String text) {
         displayMessage.setText(text);
+        this.repaint();
+    }
+    
+    public void showCurrentPlayerText(String text) {
+    	currentPlayerNameDisplay.setText(text);
+    	this.repaint();
     }
     
     /**
@@ -672,6 +676,39 @@ public class Cluedo extends JFrame {
     	this.die1.setIcon(dieIcon);
     	dieIcon = new ImageIcon(diceImages.get(secondDieValue).getScaledInstance(DIE_SIZE, DIE_SIZE, Image.SCALE_SMOOTH));
     	this.die2.setIcon(dieIcon);
+    	this.repaint();
+    }
+    
+    public void setRollButton(boolean active) {
+    	if (active) {
+    		rollButton.setEnabled(true);
+        	rollButton.setBackground(PASSAGEWAY_COLOR);
+    	} else {
+    		rollButton.setEnabled(false);
+        	rollButton.setBackground(Color.gray);
+    	}
+    	this.repaint();
+    }
+    
+    public void setSuggestButton(boolean active) {
+    	if (active) {
+    		suggestButton.setEnabled(true);
+    		suggestButton.setBackground(PASSAGEWAY_COLOR);
+    	} else {
+    		suggestButton.setEnabled(false);
+    		suggestButton.setBackground(Color.gray);
+    	}
+    	this.repaint();
+    }
+    
+    public void setAccuseButton(boolean active) {
+    	if (active) {
+    		accuseButton.setEnabled(true);
+    		accuseButton.setBackground(PASSAGEWAY_COLOR);
+    	} else {
+    		accuseButton.setEnabled(false);
+    		accuseButton.setBackground(Color.gray);
+    	}
     	this.repaint();
     }
     
@@ -694,8 +731,10 @@ public class Cluedo extends JFrame {
      * @param numOfSlotsToAdd
      */
     public void addEmptyCardSlotsToHand(int numOfSlotsToAdd) {
-    	for (int i = 0; i < numOfSlotsToAdd; i++) { currentPlayerHand.add(new JLabel(emptyCardSlotImage)); }
-    	this.repaint();
+    	if (numOfSlotsToAdd > 0) {
+	    	for (int i = 0; i < numOfSlotsToAdd; i++) { currentPlayerHand.add(new JLabel(emptyCardSlotImage)); }
+	    	this.repaint();
+    	}
     }
     
     /**
@@ -732,7 +771,7 @@ public class Cluedo extends JFrame {
     public static void main(String[] args){
         EventQueue.invokeLater(() -> {
             Cluedo frame = new Cluedo();
-            frame.playGame();
+            frame.setupAndRunCluedo();
         });
     }
 }
