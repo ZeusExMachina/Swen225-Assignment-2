@@ -52,7 +52,8 @@ public class Cluedo extends JFrame {
             // Then, set up the game
             game.setup();
             
-            Player player = new Player(1, "Meep", "Colonel Mustard");
+            Player player = new Player(1, "Meep", "Colonel Mustard", game);
+            game.setCurrentPlayer(player);
             player.giveCard(game.getCard("Miss Scarlet"));
             player.giveCard(game.getCard("Colonel Mustard"));
             player.giveCard(game.getCard("Mr Green"));
@@ -259,8 +260,8 @@ public class Cluedo extends JFrame {
     }
 
     private JPanel createButtonPanel(Game game){
-		JPanel panel = new JPanel();
-		panel.setBounds(40,80,200,200);
+        JPanel panel = new JPanel();
+        panel.setBounds(40,80,200,200);
         panel.setBackground(Color.gray);
         panel.setLayout(new GridBagLayout());
         GridBagConstraints constraints = new GridBagConstraints();
@@ -268,38 +269,39 @@ public class Cluedo extends JFrame {
         constraints.insets = new Insets(12, 12, 12 , 12);
 
         // Roll button
-		JButton rollButton=new JButton("Roll"); 
-		rollButton.setFont(rollButton.getFont().deriveFont(16.0f));
+        JButton rollButton=new JButton("Move");
+        rollButton.setFont(rollButton.getFont().deriveFont(16.0f));
         rollButton.setBackground(PASSAGEWAY_COLOR);
-        if(!game.canRoll() || !game.canSuggest()) {
+        if(!game.canMove() || !game.canSuggest()) {
             rollButton.setEnabled(false);
             rollButton.setBackground(Color.gray);
         }
 
-        if(game.canRoll()) {
+        if(game.canMove()) {
             rollButton.setEnabled(true);
             rollButton.setBackground(PASSAGEWAY_COLOR);
         }
 
         rollButton.addActionListener(new ActionListener(){
-        	public void actionPerformed(ActionEvent e){
-        		//roll()
-        		game.setMoved(true);
-                game.setRolled(false); 
+            public void actionPerformed(ActionEvent e){
+                Integer[] diceResult = game.prepareForMove();
+                showDiceRoll(diceResult[0], diceResult[1]);
+                // Set all other controls to inaccessible (to be
+                // restored when the move is finished).
             }
         });
-        
+
         constraints.weightx = 1.0;
         constraints.weighty = 0.35;
         constraints.gridx = 0; constraints.gridy = 0;
         panel.add(rollButton, constraints);
-        
+
         // Spacer
         constraints.gridx = 1; constraints.gridy = 0;
         JPanel spacer = new JPanel();
         spacer.setBackground(Color.gray);
         panel.add(spacer, constraints);
-        
+
         // Dice display
         this.die1 = new JLabel();
         this.die2 = new JLabel();
@@ -308,7 +310,7 @@ public class Cluedo extends JFrame {
         panel.add(die1, constraints);
         constraints.gridx = 3; constraints.gridy = 0;
         panel.add(die2, constraints);
-        
+
         //Suggest button
         JButton suggestButton = new JButton("Suggest");
         suggestButton.setFont(suggestButton.getFont().deriveFont(16.0f));
@@ -324,10 +326,10 @@ public class Cluedo extends JFrame {
         }
 
         suggestButton.addActionListener(new ActionListener(){
-        	public void actionPerformed(ActionEvent e){  
-        		//suggest()
-        		game.setAccused(true);
-                game.setSuggested(false); 
+            public void actionPerformed(ActionEvent e){
+                //suggest()
+                game.setAccused(true);
+                game.setSuggested(false);
             }
         });
         constraints.gridwidth = 2;
@@ -349,9 +351,9 @@ public class Cluedo extends JFrame {
         }
 
         accuseButton.addActionListener(new ActionListener(){
-        	public void actionPerformed(ActionEvent e){
-        		//accuse();
-                game.setAccused(false); 
+            public void actionPerformed(ActionEvent e){
+                //accuse();
+                game.setAccused(false);
             }
         });
         constraints.gridx = 2; constraints.gridy = 1;
@@ -365,7 +367,7 @@ public class Cluedo extends JFrame {
         constraints.gridwidth = 4;
         constraints.gridx = 0; constraints.gridy = 2;
         panel.add(endTurnButton, constraints);
-        
+
         return panel;
     }
     
@@ -412,7 +414,7 @@ public class Cluedo extends JFrame {
         return board;
     }
 
-    static class BoardSquare extends JPanel{
+    class BoardSquare extends JPanel{
 
         Location cell;
         Game game;
@@ -424,7 +426,12 @@ public class Cluedo extends JFrame {
             addMouseListener(new MouseAdapter() {
                 @Override
                 public void mouseReleased(MouseEvent e) {
-                    System.out.println(cell.point.toString());
+                    if(game.movePlayerByMouse(location)){
+                        getTopLevelAncestor().repaint();
+                    }
+                    else{
+                        // show invalid move message
+                    }
                 }
             });
         }
@@ -528,8 +535,7 @@ public class Cluedo extends JFrame {
         int response;
         while (true) {
             response = JOptionPane.showConfirmDialog(null, askMessage, windowTitle, JOptionPane.YES_NO_OPTION);
-            if (response <= 0) { return true; }
-            if (response > 0) { return false; }
+            return response <= 0;
         }
     }
 
@@ -544,7 +550,7 @@ public class Cluedo extends JFrame {
         playerCountPanel.add(labelPanel);
 
         playerCountPanel.add(playerCountChoices);
-        JOptionPane.showOptionDialog(null, playerCountPanel, "Cludo Game", JOptionPane.PLAIN_MESSAGE, JOptionPane.QUESTION_MESSAGE, null, okOption, okOption[0]);
+        JOptionPane.showOptionDialog(null, playerCountPanel, "Cluedo Game", JOptionPane.PLAIN_MESSAGE, JOptionPane.QUESTION_MESSAGE, null, okOption, okOption[0]);
         return (int)playerCountChoices.getSelectedItem();
     }
 
