@@ -35,45 +35,36 @@ public class Game {
 	/**
 	 * The board associated with this game.
 	 */
-	private Board board;
+	private final Board board;
 	private int turnNum;
 	/**
 	 * The UI associated with this game of Cluedo
 	 */
-	private Cluedo userInterface;
+	private final Cluedo userInterface;
+
+	private Player currentPlayer;
 	
 	//variables for buttons
-	private boolean canRoll = true;
 	private boolean canSuggest = false;
 	private boolean canAccuse = true;
 	private boolean canMove = true;
+
 	
-	public boolean canRoll() {
-		return canRoll;
-	}
-	
-	public void setRolled(Boolean bool) {
-		canRoll = bool;
-	}
-	
-	public boolean canSuggest() {
-		return canSuggest;
-	}
-	
+	public boolean canSuggest() { return canSuggest; }
 	public void setSuggested(Boolean bool) {
 		canSuggest = bool;
 	}
+
 	public boolean canAccuse() {
 		return canAccuse;
 	}
-	
 	public void setAccused(Boolean bool) {
 		canAccuse = bool;
 	}
+
 	public boolean canMove() {
 		return canMove;
 	}
-	
 	public void setMoved(Boolean bool) {
 		canMove = bool;
 	}
@@ -119,7 +110,7 @@ public class Game {
 	 */
 	public int playThroughPlayerTurns() {
 		for (Map.Entry<Integer,Player> player : players.entrySet()) {
-			if (player.getValue().playTurn(this)) { return player.getKey()+1; }
+			if (player.getValue().playTurn()) { return player.getKey()+1; }
 			if (!allPlayersCanAccuse()) { return -1; }
 		}
 		return 0;
@@ -208,7 +199,15 @@ public class Game {
      	* @return the location of player's piece
      	*/
 	public Location getPlayerLocation(Player player) { return board.getPlayerLocation(player); }
-	
+
+	public boolean movePlayerByMouse(Location location){
+		return currentPlayer.move(location);
+	}
+
+	public Integer[] prepareForMove(){
+		return currentPlayer.prepareForMove();
+	}
+
 	/**
 	 * Move a player piece on the board to a new position,
 	 * no validation of the location is performed.
@@ -264,21 +263,6 @@ public class Game {
 	 */
 	public Room getPlayerRoom(Player player){
 		return board.getPlayerRoom(player);
-	}
-	
-	/**
-	 * Instructs the Board to label the different exits
-	 * a Player may exit from, and returns a list of the exits.
-	 * 
-	 * @param location The player's current Location in a room
-	 * @return A list of exits that are available to move into
-	 */
-	public List<Location> labelRoomExits(Location location){
-		return board.labelRoomExits(location);
-	}
-
-	public void drawBoard(){
-		board.draw();
 	}
 	
 	private boolean allPlayersCanAccuse() {
@@ -365,7 +349,7 @@ public class Game {
 	public boolean addPlayer(int playerNumber, String playerName, String characterName) {
 		// First, check if that username is already used
 		for (Map.Entry<Integer,Player> player : players.entrySet()) { if (playerName.equals(player.getValue().getPlayerName())) { return false; } }
-		players.put(characters.indexOf(characterName), new Player(playerNumber, playerName, characterName));
+		players.put(characters.indexOf(characterName), new Player(playerNumber, playerName, characterName, this));
 		return true;
 	}
 	
@@ -383,8 +367,10 @@ public class Game {
 		}
 	}
 
+	public void setCurrentPlayer(Player currentPlayer) {
+		this.currentPlayer = currentPlayer;
+	}
 
-	
 	public static void main(String[] args) {
 		/*Game game;
 		int playerCount;
