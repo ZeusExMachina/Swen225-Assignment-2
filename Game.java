@@ -44,9 +44,9 @@ public class Game {
 	
 	//variables for buttons
 	private boolean canRoll = true;
-	private boolean canSuggest = true;
-	private boolean canAccuse = false;
-	private boolean canMove = false;
+	private boolean canSuggest = false;
+	private boolean canAccuse = true;
+	private boolean canMove = true;
 	
 	public boolean canRoll() {
 		return canRoll;
@@ -210,7 +210,7 @@ public class Game {
 	public Location getPlayerLocation(Player player) { return board.getPlayerLocation(player); }
 	
 	/**
-	 * Move a player piece on the baord to a new position,
+	 * Move a player piece on the board to a new position,
 	 * no validation of the location is performed.
 	 * @param player The player to move
 	 * @param location A destination Location object
@@ -240,6 +240,10 @@ public class Game {
 	 */
 	public void moveViaSuggestion(CardTuple suggestion) {
 		board.movePiece(suggestion);
+	}
+
+	public CardTuple askThreeCardsUI(String message, String titleMessage, String buttonName){
+		return userInterface.askForThreeCards(message, titleMessage, buttonName);
 	}
 	
 	/**
@@ -378,6 +382,8 @@ public class Game {
 			}
 		}
 	}
+
+
 	
 	public static void main(String[] args) {
 		/*Game game;
