@@ -46,6 +46,34 @@ public class Player {
 	 * @param Card
 	 */
 	public void giveCard(Card card) { hand.put(card.getName(),card); }
+	
+	public boolean playTurnV2(Game g) {
+		int roll;
+		CardTuple CardTup;
+		//Cluedo UI = g.getUI();
+		
+		if(g.canRoll() == false) {
+			roll = rollDice();
+			g.setRolled(true);
+		}
+		
+		if(g.canMove() == true) {
+			//move with roll
+			g.setMoved(false);
+		}
+		
+		if(g.canSuggest()) {
+			CardTup = g.askThreeCardsUI("Choose Three Cards", "Make A Suggestion", "Suggest");
+			g.moveViaSuggestion(CardTup);
+
+			Card refuteCard = g.refutationProcess(this, CardTup);
+			
+		}
+		
+		if(g.canAccuse()) {
+			//do accuse shit
+		}
+	}
 
 	/**
 	 * Plays through a players turn running through every scenario 
