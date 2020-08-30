@@ -38,12 +38,16 @@ public class Player {
 	 * @return String 
 	 */
 	public String getCharacterName() { return characterName; }
+
+	public Map<String,Card> getHand(){
+		return hand;
+	}
 	
 	public boolean canAccuse() { return canAccuse; }
 	
 	/**
 	 * Puts Card into players hand
-	 * @param Card
+	 * @param card
 	 */
 	public void giveCard(Card card) { hand.put(card.getName(),card); }
 	
@@ -52,12 +56,12 @@ public class Player {
 		CardTuple CardTup;
 		//Cluedo UI = g.getUI();
 		
-		if(g.canRoll() == false) {
+		if(!g.canRoll()) {
 			roll = rollDice();
 			g.setRolled(true);
 		}
 		
-		if(g.canMove() == true) {
+		if(g.canMove()) {
 			//move with roll
 			g.setMoved(false);
 		}
@@ -73,17 +77,18 @@ public class Player {
 		if(g.canAccuse()) {
 			//do accuse shit
 		}
+		return true;
 	}
 
 	/**
 	 * Plays through a players turn running through every scenario 
-	 * @param The Game class
+	 * @param g
 	 * @return boolean
 	 */
 	public boolean playTurn(Game g) {
 		boolean receivedValidInput = false;
 		this.g = g;
-		Scanner scan = g.getScanner();
+		Scanner scan = new Scanner(System.in);
 		printCards();
 		while(!receivedValidInput){
 			System.out.println("Would you like to see the board? (Y/N): ");
@@ -191,7 +196,7 @@ public class Player {
 
 	private void move(){
 		int counter = rollDice();
-		Scanner scan = g.getScanner();
+		Scanner scan = new Scanner(System.in);
 		Location prevLocation;
 		Location newLocation;
 		locationsVisited.clear();
@@ -201,7 +206,6 @@ public class Player {
 			// If player can choose their exit, give them options
 			if(g.checkPlayerInRoom(this) && g.getPlayerRoom(this).getUnoccupiedExits().size() > 1){
 				List<Location> exits = g.labelRoomExits(g.getPlayerLocation(this));
-				g.drawBoard();
 				System.out.println("Please enter the number of the exit you wish to use: ");
 				String input = scan.nextLine();
 				while(!input.matches("[1234]") || (Integer.parseInt(input) > exits.size() || Integer.parseInt(input) < 0)){
@@ -252,8 +256,8 @@ public class Player {
 
 	/**
 	 * Helper method to check if the card params cardtype matches the param cardtype
-	 * @param Card
-	 * @param CardType
+	 * @param card
+	 * @param ct
 	 * @return Card
 	 */
 	private Card isCard(String card, Card.CardType ct) {
@@ -293,7 +297,7 @@ public class Player {
 
 	/**
 	 * Creates a card tuple of refutable cards then asks player which one they would like to refute with
-	 * @param CardTuple
+	 * @param tup
 	 * @return Card
 	 */
 	public Card refute(CardTuple tup) {
@@ -378,7 +382,7 @@ public class Player {
 	/**
 	 * Asks user for 3 cards if they can accuse and create a CardTuple out of the
 	 * getThreeCards method then returns a boolean based off the checkAccusation method in game
-	 * @param Game
+	 * @param game
 	 * @return boolean
 	 */
 	public boolean accuse(Game game) {
@@ -395,11 +399,11 @@ public class Player {
 
 	/**
 	 * Asks for 3 cards and makes sure the are 1 of each type then returns them in a cardTuple
-	 * @param Game
+	 * @param game
 	 * @return CardTuple
 	 */
 	public CardTuple getThreeCards(Game game) {
-		Scanner scan = game.getScanner();
+		Scanner scan = new Scanner(System.in);
 		Card charCard, weapCard, roomCard;
 		System.out.print("Character: ");
 		charCard = isCard(scan.nextLine(),Card.CardType.CHARACTER);
