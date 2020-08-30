@@ -10,8 +10,9 @@ public class Player {
 	private boolean canAccuse = true;
 	private Stack<Location> prevLocations;
 	private Set<Location> locationsVisited;
+	private int counter;
 
-	public Player(int playerNum, String username, String character) {
+	public Player(int playerNum, String username, String character, Game g) {
 		this.hand = new HashMap<>();
 		this.playerNumber = playerNum;
 		this.playerName = username;
@@ -19,6 +20,7 @@ public class Player {
 		this.rand = new Random();
 		this.prevLocations = new Stack<Location>();
 		this.locationsVisited = new HashSet<Location>();
+		this.g = g;
 	}
 	
 	/**
@@ -51,15 +53,10 @@ public class Player {
 	 */
 	public void giveCard(Card card) { hand.put(card.getName(),card); }
 	
-	public boolean playTurnV2(Game g) {
+	public boolean playTurnV2() {
 		int roll;
 		CardTuple CardTup;
 		//Cluedo UI = g.getUI();
-		
-		if(!g.canRoll()) {
-			roll = rollDice();
-			g.setRolled(true);
-		}
 		
 		if(g.canMove()) {
 			//move with roll
@@ -81,11 +78,10 @@ public class Player {
 	}
 
 	/**
-	 * Plays through a players turn running through every scenario 
-	 * @param g
+	 * Plays through a players turn running through every scenario
 	 * @return boolean
 	 */
-	public boolean playTurn(Game g) {
+	public boolean playTurn() {
 		boolean receivedValidInput = false;
 		this.g = g;
 		Scanner scan = new Scanner(System.in);
@@ -95,7 +91,6 @@ public class Player {
 			String userInput = scan.nextLine().toUpperCase();
 			if (userInput.equals("Y")) {
 				receivedValidInput = true;
-				g.drawBoard();
 			} else if (userInput.equals("N")) {
 				receivedValidInput = true;
 			} else {
@@ -108,7 +103,7 @@ public class Player {
 			String userInput = scan.nextLine().toUpperCase();
 			if (userInput.equals("Y")) {
 				receivedValidInput = true;
-				move();
+				//move();
 			} else if (userInput.equals("N")) {
 				receivedValidInput = true;
 			} else {
@@ -172,7 +167,7 @@ public class Player {
 			System.out.print("Would you like to accuse? (Y/N): ");
 			String userInput = scan.nextLine().toUpperCase();
 			if (userInput.equals("Y")) {
-				return (accuse(g));
+				return accuse();
 			} else if (userInput.equals("N")) {
 				receivedValidInput = true;
 			} else {
@@ -182,76 +177,85 @@ public class Player {
 		return false;
 	}
 
+
+
 	/**
 	 * Roll two dice and get their sum. Two numbers are generated
 	 * to try to mimic real dice.
 	 *
-	 * @return the total of the two dice
+	 * @return the numbers of both dice
 	 */
-	private Integer rollDice() {
-		int first = rand.nextInt(6) + 1, second = rand.nextInt(6) + 1;
-		System.out.println("You rolled a " + first + " and a " + second);
-		return first + second;
+	public Integer[] rollDice() {
+		Integer[] diceNumbers = new Integer[2];
+		diceNumbers[0] = rand.nextInt(6) + 1;
+		diceNumbers[1] = rand.nextInt(6) + 1;
+		counter = diceNumbers[0] + diceNumbers[1];
+		return diceNumbers;
 	}
 
-	private void move(){
-		int counter = rollDice();
-		Scanner scan = new Scanner(System.in);
-		Location prevLocation;
-		Location newLocation;
+	public Integer[] prepareForMove(){
 		locationsVisited.clear();
 		prevLocations.clear();
-		while(counter > 0) {
+		return rollDice();
+	}
 
-			// If player can choose their exit, give them options
-			if(g.checkPlayerInRoom(this) && g.getPlayerRoom(this).getUnoccupiedExits().size() > 1){
-				List<Location> exits = g.labelRoomExits(g.getPlayerLocation(this));
-				System.out.println("Please enter the number of the exit you wish to use: ");
-				String input = scan.nextLine();
-				while(!input.matches("[1234]") || (Integer.parseInt(input) > exits.size() || Integer.parseInt(input) < 0)){
-					System.out.println("Please enter a valid exit number");
-					input = scan.nextLine();
-				}
-				Location selectedExit = exits.get(Integer.parseInt(input)-1);
-				g.movePlayer(this, selectedExit);
-				counter--;
 
-			}
-			// Otherwise ask where to move via WASD
-			else {
-				System.out.println("Moves left: " + counter + " Enter a single move with W, A, S, or D and press enter: ");
-				String direction = scan.nextLine().toUpperCase();
-				if (direction.equals("W") || direction.equals("A") || direction.equals("S") || direction.equals("D")) {
-					// Before anything, record the location we're moving from
-					prevLocation = g.getPlayerLocation(this);
-					// Then first, check whether or not the move is valid
-					int moveAttemptResult = g.movePlayer(this, direction, locationsVisited, prevLocations);
-					if (moveAttemptResult == 0) {
-						// Successful move
-						newLocation = g.getPlayerLocation(this);
-						if (!prevLocations.isEmpty() && newLocation.equals(prevLocations.peek())) {
-							locationsVisited.remove(prevLocations.pop());
-							counter++;
-						} else {
-							locationsVisited.add(prevLocation);
-							prevLocations.push(prevLocation);
-							if (g.checkPlayerInRoom(this)) {
-								counter = 0;
-							} else {
-								counter--;
-							}
-						}
-						g.drawBoard();
-					} else if (moveAttemptResult < 0) {
-						System.out.println("Cannot move in that direction, please try again.");
-					} else if (moveAttemptResult > 0) {
-						System.out.println("Already moved there this turn, please try again.");
-					}
-				} else {
-					System.out.println("Invalid input, please try again.");
-				}
-			}
+	public boolean move(Location destination) {
+		if(destination.room == null || counter < 1){
+			return false;
 		}
+
+		Location currentLocation;
+		Location newLocation;
+
+
+			// First valid option is a player exiting a room
+			if (g.checkPlayerInRoom(this) && g.getPlayerRoom(this).getUnoccupiedExits().contains(destination)) {
+				g.movePlayer(this, destination);
+				counter--;
+				return true;
+			}
+
+			// Second valid option is a player entering a room
+			if(!destination.room.getName().equals("Passageway")
+					&& destination.room.getEntrances().contains(g.getPlayerLocation(this))){
+				g.movePlayer(this, destination.room.getRandomRoomLocation());
+				counter = 0;
+				return true;
+			}
+
+
+			// Finally the third option is moving to an adjacent square
+			// in the passageway
+			else {
+				// Before anything, record the location we're moving from
+				currentLocation = g.getPlayerLocation(this);
+				String direction = currentLocation.checkAdjacent(destination);
+				if(direction.equals("Invalid")){
+					return false;
+				}
+				// Then first, check whether or not the move is valid
+				int moveAttemptResult = g.movePlayer(this, direction, locationsVisited, prevLocations);
+				if (moveAttemptResult == 0) {
+					// Successful move
+					newLocation = g.getPlayerLocation(this);
+					if (!prevLocations.isEmpty() && newLocation.equals(prevLocations.peek())) {
+						locationsVisited.remove(prevLocations.pop());
+						counter++;
+						return true;
+					} else {
+						locationsVisited.add(currentLocation);
+						prevLocations.push(currentLocation);
+						counter--;
+						return true;
+					}
+				} else if (moveAttemptResult < 0) {
+					System.out.println("Cannot move in that direction, please try again.");
+				} else if (moveAttemptResult > 0) {
+					System.out.println("Already moved there this turn, please try again.");
+				}
+			}
+		return false;
 	}
 
 	/**
@@ -382,27 +386,25 @@ public class Player {
 	/**
 	 * Asks user for 3 cards if they can accuse and create a CardTuple out of the
 	 * getThreeCards method then returns a boolean based off the checkAccusation method in game
-	 * @param game
 	 * @return boolean
 	 */
-	public boolean accuse(Game game) {
+	public boolean accuse() {
 		if (!canAccuse) {
 			System.out.println("You have already made an accusation before, and cannot make another.");
 			return false;
 		} else {
 			System.out.println("Make a suggestion - type in 3 cards:");
-			CardTuple accusation = getThreeCards(game);
+			CardTuple accusation = getThreeCards();
 			canAccuse = false;
-			return game.checkAccusation(accusation);
+			return g.checkAccusation(accusation);
 		}
 	}
 
 	/**
 	 * Asks for 3 cards and makes sure the are 1 of each type then returns them in a cardTuple
-	 * @param game
 	 * @return CardTuple
 	 */
-	public CardTuple getThreeCards(Game game) {
+	public CardTuple getThreeCards() {
 		Scanner scan = new Scanner(System.in);
 		Card charCard, weapCard, roomCard;
 		System.out.print("Character: ");
