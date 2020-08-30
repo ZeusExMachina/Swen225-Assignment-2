@@ -42,6 +42,42 @@ public class Game {
 	 */
 	private Cluedo userInterface;
 	
+	//variables for buttons
+	private boolean canRoll = true;
+	private boolean canSuggest = true;
+	private boolean canAccuse = false;
+	private boolean canMove = false;
+	
+	public boolean canRoll() {
+		return canRoll;
+	}
+	
+	public void setRolled(Boolean bool) {
+		canRoll = bool;
+	}
+	
+	public boolean canSuggest() {
+		return canSuggest;
+	}
+	
+	public void setSuggested(Boolean bool) {
+		canSuggest = bool;
+	}
+	public boolean canAccuse() {
+		return canAccuse;
+	}
+	
+	public void setAccused(Boolean bool) {
+		canAccuse = bool;
+	}
+	public boolean canMove() {
+		return canMove;
+	}
+	
+	public void setMoved(Boolean bool) {
+		canMove = bool;
+	}
+	
 	/**
 	 * Game constructor.
 	 */
