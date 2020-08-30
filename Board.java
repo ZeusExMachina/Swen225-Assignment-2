@@ -394,7 +394,7 @@ public class Board {
      * @return True if the move was completed
      */
     public Integer movePlayer(Player player, String direction, Set<Location> locationsVisited, Stack<Location> prevLocations){
-        Piece playerPiece = pieces.get(player.getPlayerName());
+        Piece playerPiece = pieces.get(player.getCharacterName());
         Location playerLocation = playerPiece.location();
         Location destination = null;
         int x = playerLocation.point.x;
@@ -452,7 +452,7 @@ public class Board {
      * @return the location of player's piece
      */
     public Location getPlayerLocation(Player player) {
-        return pieces.get(player.getPlayerName()).location();
+        return pieces.get(player.getCharacterName()).location();
     }
 
     /**
@@ -462,7 +462,7 @@ public class Board {
      * @return True if the player is in a Room
      */
     public boolean checkPlayerInRoom(Player player){
-        Room playerRoom = pieces.get(player.getPlayerName()).location().room;
+        Room playerRoom = pieces.get(player.getCharacterName()).location().room;
         return playerRoom != null && !playerRoom.equals(rooms.get("Passageway"));
     }
 
