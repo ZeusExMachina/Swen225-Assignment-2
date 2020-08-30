@@ -285,6 +285,7 @@ public class Cluedo extends JFrame {
         rollButton.addActionListener(new ActionListener(){
             public void actionPerformed(ActionEvent e){
                 Integer[] diceResult = game.prepareForMove();
+                game.setMoved(true);
                 showDiceRoll(diceResult[0], diceResult[1]);
                 // Set all other controls to inaccessible (to be
                 // restored when the move is finished).
@@ -449,40 +450,40 @@ public class Cluedo extends JFrame {
                         Piece current = p.getValue();
                         switch(current.icon()){
                             case "c":
-                                g2d.drawImage(Cluedo.pieceImages.get("Candlestick").getScaledInstance(width, height, Image.SCALE_SMOOTH), padding, padding,this);
+                                g2d.drawImage(Cluedo.pieceImages.get("Candlestick"), padding, padding, width, height,this);
                                 break;
                             case "d":
-                                g2d.drawImage(Cluedo.pieceImages.get("Dagger").getScaledInstance(width, height, Image.SCALE_SMOOTH), padding, padding,this);
+                                g2d.drawImage(Cluedo.pieceImages.get("Dagger"), padding, padding, width, height,this);
                                 break;
                             case "l":
-                                g2d.drawImage(Cluedo.pieceImages.get("Lead Pipe").getScaledInstance(width, height, Image.SCALE_SMOOTH), padding, padding,this);
+                                g2d.drawImage(Cluedo.pieceImages.get("Lead Pipe"), padding, padding, width, height,this);
                                 break;
                             case "g":
-                                g2d.drawImage(Cluedo.pieceImages.get("Revolver").getScaledInstance(width, height, Image.SCALE_SMOOTH), padding, padding,this);
+                                g2d.drawImage(Cluedo.pieceImages.get("Revolver"), padding, padding, width, height,this);
                                 break;
                             case "r":
-                                g2d.drawImage(Cluedo.pieceImages.get("Rope").getScaledInstance(width, height, Image.SCALE_SMOOTH), padding, padding,this);
+                                g2d.drawImage(Cluedo.pieceImages.get("Rope"), padding, padding, width, height,this);
                                 break;
                             case "s":
-                                g2d.drawImage(Cluedo.pieceImages.get("Spanner").getScaledInstance(width, height, Image.SCALE_SMOOTH), padding, padding,this);
+                                g2d.drawImage(Cluedo.pieceImages.get("Spanner"), padding, padding, width, height,this);
                                 break;
                             case "P":
-                                g2d.drawImage(Cluedo.pieceImages.get("Miss Peacock").getScaledInstance(width, height, Image.SCALE_SMOOTH), padding, padding,this);
+                                g2d.drawImage(Cluedo.pieceImages.get("Miss Peacock"), padding, padding, width, height,this);
                                 break;
                             case "L":
-                                g2d.drawImage(Cluedo.pieceImages.get("Professor Plum").getScaledInstance(width, height, Image.SCALE_SMOOTH), padding, padding,this);
+                                g2d.drawImage(Cluedo.pieceImages.get("Professor Plum"), padding, padding, width, height,this);
                                 break;
                             case "M":
-                                g2d.drawImage(Cluedo.pieceImages.get("Colonel Mustard").getScaledInstance(width, height, Image.SCALE_SMOOTH), padding, padding,this);
+                                g2d.drawImage(Cluedo.pieceImages.get("Colonel Mustard"), padding, padding, width, height,this);
                                 break;
                             case "W":
-                                g2d.drawImage(Cluedo.pieceImages.get("Mrs White").getScaledInstance(width, height, Image.SCALE_SMOOTH), padding, padding,this);
+                                g2d.drawImage(Cluedo.pieceImages.get("Mrs White"), padding, padding, width, height,this);
                                 break;
                             case "G":
-                                g2d.drawImage(Cluedo.pieceImages.get("Mr Green").getScaledInstance(width, height, Image.SCALE_SMOOTH), padding, padding,this);
+                                g2d.drawImage(Cluedo.pieceImages.get("Mr Green"), padding, padding, width, height,this);
                                 break;
                             case "S":
-                                g2d.drawImage(Cluedo.pieceImages.get("Miss Scarlet").getScaledInstance(width, height, Image.SCALE_SMOOTH), padding, padding,this);
+                                g2d.drawImage(Cluedo.pieceImages.get("Miss Scarlet"), padding, padding, width, height,this);
                                 break;
                         }
                     }
