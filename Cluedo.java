@@ -294,27 +294,11 @@ public class Cluedo extends JFrame {
         constraints.gridx = 0; constraints.gridy = 0;
         panel.add(rollButton, constraints);
         
-        // Move button
-        JButton moveButton = new JButton("Move");
-        moveButton.setFont(moveButton.getFont().deriveFont(16.0f));
-        moveButton.setBackground(PASSAGEWAY_COLOR);
-        if(!game.canMove()) {
-            moveButton.setEnabled(false);
-            moveButton.setBackground(Color.gray);
-        }
-
-        if(game.canMove()) {
-            moveButton.setEnabled(true);
-            moveButton.setBackground(PASSAGEWAY_COLOR);
-        }
-
-        moveButton.addActionListener(new ActionListener(){
-        	public void actionPerformed(ActionEvent e){  
-                game.setMoved(true); 
-            }
-        });
+        // Spacer
         constraints.gridx = 1; constraints.gridy = 0;
-        panel.add(moveButton, constraints);
+        JPanel spacer = new JPanel();
+        spacer.setBackground(Color.gray);
+        panel.add(spacer, constraints);
         
         // Dice display
         this.die1 = new JLabel();
