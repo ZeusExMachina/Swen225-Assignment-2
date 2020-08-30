@@ -3,7 +3,7 @@ import java.util.*;
 /**
  * Sets up the game and holds the connection between players 
  * and the board.
- * 
+ *
  * @author Elijah Guarina
  */
 
@@ -29,10 +29,10 @@ public class Game {
 	 */
 	private Map<Integer,Player> players = new TreeMap<Integer,Player>();
 	/**
-	 * 
+	 *
 	 */
 	private Queue<Integer> playerOrderRotation = new ArrayDeque<Integer>();
-	/** 
+	/**
 	 * A set to store all the cards used for the murder condition.
 	 */
 	private CardTuple murderConditions;
@@ -52,12 +52,12 @@ public class Game {
 	 * The UI associated with this game of Cluedo
 	 */
 	private final Cluedo userInterface;
-	
+
 	//variables for buttons
 	private boolean canRoll = true;
 	private boolean canSuggest = false;
 	private boolean canAccuse = true;
-	
+
 	/**
 	 * Game constructor.
 	 */
@@ -65,11 +65,11 @@ public class Game {
 		this.board = new Board();
 		this.userInterface = ui;
 	}
-	
+
 	// ----------------- WHILE GAME RUNS / PLAYING TURNS -------------------
-	
+
 	/**
-	 * Play through the game, checking gameState for whether 
+	 * Play through the game, checking gameState for whether
 	 * the game has ended or not.
 	 */
 	public void play() {
@@ -79,16 +79,16 @@ public class Game {
 		} else if (gameState > 0) {
 			// currentPlayer won!
 			userInterface.finishGame(currentPlayer.getPlayerName() + " (" + currentPlayer.getCharacterName() + ") won! Congratulations!", murderConditions);
-			
+
 		} else {
 			// Every player made unsuccessful accusations, so nobody wins
 			userInterface.finishGame("Nobody can accuse anymore, so nobody wins!", murderConditions);
 		}
 		// TODO: Maybe also show the murder conditions at either end
 	}
-	
+
 	/**
-	 * Begin the next Player's turn, setting up what actions 
+	 * Begin the next Player's turn, setting up what actions
 	 * they can and cannot do.
 	 */
 	private void playNextTurn() {
@@ -96,15 +96,15 @@ public class Game {
 		int currentOrderNum = playerOrderRotation.poll();
 		currentPlayer = players.get(currentOrderNum);
 		playerOrderRotation.offer(currentOrderNum);
-		
+
 		// Tell whose turn it is on the UI
 		userInterface.showCurrentPlayerText(currentPlayer.getPlayerName() + "'s (" + currentPlayer.getCharacterName() + ") turn.");
 		userInterface.displayGameStateMessage("It's your turn!\nChoose an action below to perform.");
-		
+
 		// Other UI updates: Display player's cards, clear the Suggestion panel
 		userInterface.clearSuggestion();
 		userInterface.showPlayerHand(currentPlayer);
-		
+
 		// Reset the state of the action buttons depending on the player's status
 		canRoll = true; // TODO: Might be false if player is trapped, i.e. can't move
 		userInterface.setRollButton(canRoll);
@@ -113,51 +113,51 @@ public class Game {
 		canSuggest = checkPlayerInRoom(currentPlayer);
 		userInterface.setSuggestButton(canSuggest);
 	}
-	
+
 	public void playerRollsDice() {
 		// First, roll some dice
 		int moveAmount = currentPlayer.prepareForMove();
 		canRoll = false;
 		userInterface.setRollButton(false);
-		
+
 		// Then move!
-		
-		
+
+
 		// When finished moving, check if in a room to change whether or not player can suggest
 		canSuggest = checkPlayerInRoom(currentPlayer);
 		userInterface.setSuggestButton(canSuggest);
 	}
-	
+
 	public void suggestionMade() {
 		CardTuple suggestion = userInterface.askForThreeCards("Choose three cards to Suggest:", "Make a Suggestion", "Suggest!");
 		canSuggest = false;
 		userInterface.setSuggestButton(false);
-		
+
 		// Refute
 	}
-	
+
 	public void accusationMade() {
 		CardTuple accusation = userInterface.askForThreeCards("Choose three cards to Accuse with:", "Make an Accusation", "Accuse!");
 		canAccuse = false;
 		userInterface.setAccuseButton(false);
 		currentPlayer.setCannotAccuse();
-		if (checkAccusation(accusation)) { 
+		if (checkAccusation(accusation)) {
 			gameState = 1;
 			userInterface.displayGameStateMessage("Your accusation was correct!\nClick the \"End Turn\" button to end the game.");
 		} else {
 			userInterface.displayGameStateMessage("Unfortunately, your accusation was incorrect.\nYou are not able to make any more accusations.");
 		}
 	}
-	
+
 	public void endCurrentTurn() {
 		if (!allPlayersCanAccuse()) { gameState = -1; }
 		play();
 	}
-	
+
 	/**
-	 * Run through all players to find a player that can refute 
+	 * Run through all players to find a player that can refute
 	 * a given suggestion.
-	 * 
+	 *
 	 * @param suggester is the person who made the suggestion
 	 * @param suggestion is the suggestion made by suggester
 	 * @return the card used to refute the suggestion, if any.
@@ -169,7 +169,7 @@ public class Game {
 		Player player;
 		for (int i = 1; i <= players.size(); i++) {
 			// Calculate the correct player number to get from the collection of players
-			playerNum = i + turnNum;
+			playerNum = i;
 			if (playerNum > players.size()) { playerNum -= players.size(); }
 			// Get the player and ask them to refute
 			player = players.get(playerNum);
@@ -183,21 +183,21 @@ public class Game {
 		}
 		return refuteCard;
 	}
-	
+
 	// ----------------------- GETTERS and CHECKERS -----------------------------
-	
+
 	/**
 	 * Get a card with the matching name.
-	 * 
+	 *
 	 * @param cardName is the name of the card to get
 	 * @return
 	 */
 	public Card getCard(String cardName) { return allCards.get(cardName.toLowerCase()); }
-	
+
 	/**
 	 * Compares 3 cards to the murder conditions.
-	 * 
-	 * @param accusation is the 3 cards (in a CardTuple) to 
+	 *
+	 * @param accusation is the 3 cards (in a CardTuple) to
 	 * 		  compare
 	 * @return whether or not they match
 	 */
@@ -211,16 +211,24 @@ public class Game {
 		}
 		return false;
 	}
-	
+
 	/**
-     	* Get the current location of a Player Piece that corresponds 
-     	* to a given Player.
-     	* 
-     	* @param player is the player to find the location for
-     	* @return the location of player's piece
-     	*/
+	 * Get the current location of a Player Piece that corresponds
+	 * to a given Player.
+	 *
+	 * @param player is the player to find the location for
+	 * @return the location of player's piece
+	 */
 	public Location getPlayerLocation(Player player) { return board.getPlayerLocation(player); }
-	
+
+	public boolean movePlayerByMouse(Location location){
+		return currentPlayer.move(location);
+	}
+
+	public Integer prepareForMove(){
+		return currentPlayer.prepareForMove();
+	}
+
 	/**
 	 * Move a player piece on the board to a new position,
 	 * no validation of the location is performed.
@@ -230,10 +238,10 @@ public class Game {
 	public void movePlayer(Player player, Location location){
 		board.movePlayer(player, location);
 	}
-	
+
 	/**
 	 * Move a player piece on the board to a new position.
-	 * 
+	 *
 	 * @param player The player to move
 	 * @param direction A string containing WASD for up, left,
 	 *                  down or right movement.
@@ -242,38 +250,38 @@ public class Game {
 	public Integer movePlayer(Player player, String direction, Set<Location> locationsVisited, Stack<Location> prevLocations) {
 		return board.movePlayer(player,direction,locationsVisited,prevLocations);
 	}
-	
+
 	/**
-	 * Move a player and a weapon to a room according to 
+	 * Move a player and a weapon to a room according to
 	 * a given suggestion.
-	 * 
-	 * @param suggestion is the suggestion that holds the  
+	 *
+	 * @param suggestion is the suggestion that holds the
 	 * 		  details of this move (what and where to move)
 	 */
 	public void moveViaSuggestion(CardTuple suggestion) {
 		board.movePiece(suggestion);
 	}
-	
+
 	/**
 	 * Check on the board if the given player is in a room.
-	 * 
+	 *
 	 * @param player is the player to check for
 	 * @return whether or not the player is in a room
 	 */
 	public boolean checkPlayerInRoom(Player player){
 		return board.checkPlayerInRoom(player);
 	}
-	
+
 	/**
 	 * Get the room that the player is currently in.
-	 * 
+	 *
 	 * @param player is the player to check for
 	 * @return the room the player is in
 	 */
 	public Room getPlayerRoom(Player player){
 		return board.getPlayerRoom(player);
 	}
-	
+
 	private boolean allPlayersCanAccuse() {
 		boolean aPlayerCanAccuse = false;
 		for (Map.Entry<Integer,Player> player : players.entrySet()) { aPlayerCanAccuse = player.getValue().canAccuse(); }
@@ -283,31 +291,31 @@ public class Game {
 	public Location getLocation(int row, int col){
 		return board.currentBoard[row][col];
 	}
-	
+
 	public Map<String,Piece> getPieces(){
 		return board.getPieces();
 	}
-	
+
 	// ------------------ UPDATING UI ----------------------
-	
+
 	public void displayGameStateMessageUI(String text) {
-        userInterface.displayGameStateMessage(text);
-    }
-	
+		userInterface.displayGameStateMessage(text);
+	}
+
 	public void showCurrentPlayerTextUI(String text) {
-    	userInterface.showCurrentPlayerText(text);
-    }
-	
+		userInterface.showCurrentPlayerText(text);
+	}
+
 	public void showDiceRollUI(int firstDieValue, int secondDieValue) {
 		userInterface.showDiceRoll(firstDieValue, secondDieValue);
 	}
-	
+
 	public CardTuple askForThreeCardsUI(String message, String titleMessage, String buttonName) {
 		return userInterface.askForThreeCards(message, titleMessage, buttonName);
 	}
-	
+
 	// ----------------- PRE-GAME SETUP --------------------
-	
+
 	/**
 	 * Set up a new Cluedo game.
 	 */
@@ -324,7 +332,7 @@ public class Game {
 		for (Map.Entry<Integer,Player> player : players.entrySet()) { playerOrderRotation.offer(player.getKey()); }
 		System.out.println(murderConditions);
 	}
-	
+
 	/**
 	 * Manually create all the cards of the Cluedo Game.
 	 */
@@ -334,9 +342,9 @@ public class Game {
 		for (String weapon : weapons) { allCards.put(weapon.toLowerCase(), new Card(weapon, Card.CardType.WEAPON)); }
 		for (String room : rooms) { allCards.put(room.toLowerCase(), new Card(room, Card.CardType.ROOM)); }
 	}
-	
+
 	/**
-	 * Create the murder conditions (winning combination) by 
+	 * Create the murder conditions (winning combination) by
 	 * randomly selecting one Character, Weapon, and Room card.
 	 */
 	private void setUpMurder(List<Card> cards) {
@@ -349,10 +357,10 @@ public class Game {
 		}
 		murderConditions = new CardTuple(charCard, weapCard, roomCard);
 	}
-	
+
 	/**
 	 * Select the first card from allCards of a certain type.
-	 * 
+	 *
 	 * @param type is the type of card to look for
 	 */
 	private Card getMurderCard(List<Card> cards, Card.CardType type)  {
@@ -367,10 +375,10 @@ public class Game {
 			return murderCard;
 		}
 	}
-	
+
 	/**
 	 * Add a new player to the game
-	 * 
+	 *
 	 * @param playerNumber is the player's number (e.g. Player 1)
 	 * @param playerName is the username of the player
 	 * @param characterName is the character played by the player
@@ -382,9 +390,9 @@ public class Game {
 		players.put(characters.indexOf(characterName), new Player(playerNumber, playerName, characterName, this));
 		return true;
 	}
-	
+
 	/**
-	 * Deal the all cards (except murder cards) to evenly between 
+	 * Deal the all cards (except murder cards) to evenly between
 	 * each player. Some players may end up with more than others.
 	 */
 	private void dealCards(List<Card> cards) {
@@ -396,5 +404,5 @@ public class Game {
 			}
 		}
 	}
-	
+
 }
