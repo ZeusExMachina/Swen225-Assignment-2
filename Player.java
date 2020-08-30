@@ -23,33 +23,33 @@ public class Player {
 		this.g = game;
 		this.canAccuse = true;
 	}
-	
+
 	/**
 	 * Returns the number of this player (e.g. Player "1")
 	 * @return Integer
 	 */
 	public int getPlayerNumber() { return playerNumber; }
-	
+
 	/**
 	 * Returns the username of this Player
 	 * @return String
 	 */
 	public String getPlayerName() { return playerName; }
-	
+
 	/**
 	 * Returns the name of the character associated with this Player
-	 * @return String 
+	 * @return String
 	 */
 	public String getCharacterName() { return characterName; }
-	
+
 	public Map<String,Card> getHand(){
 		return hand;
 	}
-	
+
 	public boolean canAccuse() { return canAccuse; }
-	
+
 	public void setCannotAccuse() { canAccuse = false; }
-	
+
 	/**
 	 * Puts Card into players hand
 	 * @param card
@@ -59,9 +59,10 @@ public class Player {
 	public Integer prepareForMove(){
 		locationsVisited.clear();
 		prevLocations.clear();
-		return rollDice();
+		counter = rollDice();
+		return counter;
 	}
-	
+
 	/**
 	 * Roll two dice and get their sum. Two numbers are generated
 	 * to try to mimic real dice.
@@ -74,7 +75,7 @@ public class Player {
 		this.g.displayGameStateMessageUI("You rolled a " + first + " and a " + second + ".\nClick on the board to move! (one tile at a time)");
 		return first + second;
 	}
-	
+
 	public boolean move(Location destination) {
 		if(destination.room == null || counter < 1){
 			return false;
@@ -84,55 +85,55 @@ public class Player {
 		Location newLocation;
 
 
-			// First valid option is a player exiting a room
-			if (g.checkPlayerInRoom(this) && g.getPlayerRoom(this).getUnoccupiedExits().contains(destination)) {
-				g.movePlayer(this, destination);
-				counter--;
-				return true;
+		// First valid option is a player exiting a room
+		if (g.checkPlayerInRoom(this) && g.getPlayerRoom(this).getUnoccupiedExits().contains(destination)) {
+			g.movePlayer(this, destination);
+			counter--;
+			return true;
+		}
+
+		// Second valid option is a player entering a room
+		if(!destination.room.getName().equals("Passageway")
+				&& destination.room.getEntrances().contains(g.getPlayerLocation(this))){
+			g.movePlayer(this, destination.room.getRandomRoomLocation());
+			counter = 0;
+			return true;
+		}
+
+
+		// Finally the third option is moving to an adjacent square
+		// in the passageway
+		else {
+			// Before anything, record the location we're moving from
+			currentLocation = g.getPlayerLocation(this);
+			String direction = currentLocation.checkAdjacent(destination);
+			if(direction.equals("Invalid")){
+				return false;
 			}
-
-			// Second valid option is a player entering a room
-			if(!destination.room.getName().equals("Passageway")
-					&& destination.room.getEntrances().contains(g.getPlayerLocation(this))){
-				g.movePlayer(this, destination.room.getRandomRoomLocation());
-				counter = 0;
-				return true;
-			}
-
-
-			// Finally the third option is moving to an adjacent square
-			// in the passageway
-			else {
-				// Before anything, record the location we're moving from
-				currentLocation = g.getPlayerLocation(this);
-				String direction = currentLocation.checkAdjacent(destination);
-				if(direction.equals("Invalid")){
-					return false;
+			// Then first, check whether or not the move is valid
+			int moveAttemptResult = g.movePlayer(this, direction, locationsVisited, prevLocations);
+			if (moveAttemptResult == 0) {
+				// Successful move
+				newLocation = g.getPlayerLocation(this);
+				if (!prevLocations.isEmpty() && newLocation.equals(prevLocations.peek())) {
+					locationsVisited.remove(prevLocations.pop());
+					counter++;
+					return true;
+				} else {
+					locationsVisited.add(currentLocation);
+					prevLocations.push(currentLocation);
+					counter--;
+					return true;
 				}
-				// Then first, check whether or not the move is valid
-				int moveAttemptResult = g.movePlayer(this, direction, locationsVisited, prevLocations);
-				if (moveAttemptResult == 0) {
-					// Successful move
-					newLocation = g.getPlayerLocation(this);
-					if (!prevLocations.isEmpty() && newLocation.equals(prevLocations.peek())) {
-						locationsVisited.remove(prevLocations.pop());
-						counter++;
-						return true;
-					} else {
-						locationsVisited.add(currentLocation);
-						prevLocations.push(currentLocation);
-						counter--;
-						return true;
-					}
-				} else if (moveAttemptResult < 0) {
-					System.out.println("Cannot move in that direction, please try again.");
-				} else if (moveAttemptResult > 0) {
-					System.out.println("Already moved there this turn, please try again.");
-				}
+			} else if (moveAttemptResult < 0) {
+				System.out.println("Cannot move in that direction, please try again.");
+			} else if (moveAttemptResult > 0) {
+				System.out.println("Already moved there this turn, please try again.");
 			}
+		}
 		return false;
 	}
-	
+
 	public Set<Card> refuteV2(CardTuple tup){
 		Set<Card> refuteOptions = new HashSet<Card>();
 
@@ -165,6 +166,6 @@ public class Player {
 			System.out.println(c.getName());
 		}
 	}
-	
+
 	public String toString() { return "player " + playerNumber + " - username: " + playerName + ", character: " + characterName + ", in hand: " + hand.toString(); }
 }
