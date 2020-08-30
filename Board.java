@@ -27,6 +27,10 @@ public class Board {
         calculateRoomEntrancesAndExits();
     }
 
+    public Map<String, Piece> getPieces() {
+        return pieces;
+    }
+
     /**
      * Creates the Room objects for the default Cluedo board
      */
@@ -376,7 +380,7 @@ public class Board {
      * @param location The destination location
      */
     public void movePlayer(Player player, Location location){
-        pieces.get(player.getName()).setLocation(location);
+        pieces.get(player.getPlayerName()).setLocation(location);
     }
 
 
@@ -390,7 +394,7 @@ public class Board {
      * @return True if the move was completed
      */
     public Integer movePlayer(Player player, String direction, Set<Location> locationsVisited, Stack<Location> prevLocations){
-        Piece playerPiece = pieces.get(player.getName());
+        Piece playerPiece = pieces.get(player.getPlayerName());
         Location playerLocation = playerPiece.location();
         Location destination = null;
         int x = playerLocation.point.x;
@@ -448,7 +452,7 @@ public class Board {
      * @return the location of player's piece
      */
     public Location getPlayerLocation(Player player) {
-        return pieces.get(player.getName()).location();
+        return pieces.get(player.getPlayerName()).location();
     }
 
     /**
@@ -458,7 +462,7 @@ public class Board {
      * @return True if the player is in a Room
      */
     public boolean checkPlayerInRoom(Player player){
-        Room playerRoom = pieces.get(player.getName()).location().room;
+        Room playerRoom = pieces.get(player.getPlayerName()).location().room;
         return playerRoom != null && !playerRoom.equals(rooms.get("Passageway"));
     }
 
@@ -468,7 +472,7 @@ public class Board {
      * @return A Room object
      */
     public Room getPlayerRoom(Player player){
-        return pieces.get(player.getName()).location().room;
+        return pieces.get(player.getPlayerName()).location().room;
     }
 
 }
