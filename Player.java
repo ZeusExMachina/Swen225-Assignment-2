@@ -7,12 +7,12 @@ public class Player {
 	private final String characterName;
 	private final Random rand;
 	public Game g;
-	private boolean canAccuse = true;
+	private boolean canAccuse;
+	private int counter;
 	private Stack<Location> prevLocations;
 	private Set<Location> locationsVisited;
-	private int counter;
 
-	public Player(int playerNum, String username, String character, Game g) {
+	public Player(int playerNum, String username, String character, Game game) {
 		this.hand = new HashMap<>();
 		this.playerNumber = playerNum;
 		this.playerName = username;
@@ -20,7 +20,8 @@ public class Player {
 		this.rand = new Random();
 		this.prevLocations = new Stack<Location>();
 		this.locationsVisited = new HashSet<Location>();
-		this.g = g;
+		this.g = game;
+		this.canAccuse = true;
 	}
 	
 	/**
@@ -40,166 +41,40 @@ public class Player {
 	 * @return String 
 	 */
 	public String getCharacterName() { return characterName; }
-
+	
 	public Map<String,Card> getHand(){
 		return hand;
 	}
 	
 	public boolean canAccuse() { return canAccuse; }
 	
+	public void setCannotAccuse() { canAccuse = false; }
+	
 	/**
 	 * Puts Card into players hand
 	 * @param card
 	 */
 	public void giveCard(Card card) { hand.put(card.getName(),card); }
-	
-	public boolean playTurnV2() {
-		int roll;
-		CardTuple CardTup;
-		//Cluedo UI = g.getUI();
-		
-		if(g.canMove()) {
-			//move with roll
-			g.setMoved(false);
-		}
-		
-		if(g.canSuggest()) {
-			CardTup = g.askThreeCardsUI("Choose Three Cards", "Make A Suggestion", "Suggest");
-			g.moveViaSuggestion(CardTup);
 
-			Card refuteCard = g.refutationProcess(this, CardTup);
-			
-		}
-		
-		if(g.canAccuse()) {
-			//do accuse shit
-		}
-		return true;
-	}
-
-	/**
-	 * Plays through a players turn running through every scenario
-	 * @return boolean
-	 */
-	public boolean playTurn() {
-		boolean receivedValidInput = false;
-		this.g = g;
-		Scanner scan = new Scanner(System.in);
-		printCards();
-		while(!receivedValidInput){
-			System.out.println("Would you like to see the board? (Y/N): ");
-			String userInput = scan.nextLine().toUpperCase();
-			if (userInput.equals("Y")) {
-				receivedValidInput = true;
-			} else if (userInput.equals("N")) {
-				receivedValidInput = true;
-			} else {
-				System.out.println("Invalid input, please try again.");
-			}
-		}
-		receivedValidInput = false;
-		while (!receivedValidInput && g.getPlayerRoom(this).playerCanRoll()) {
-			System.out.println("Would you like to roll? (Y/N): ");
-			String userInput = scan.nextLine().toUpperCase();
-			if (userInput.equals("Y")) {
-				receivedValidInput = true;
-				//move();
-			} else if (userInput.equals("N")) {
-				receivedValidInput = true;
-			} else {
-				System.out.println("Invalid input, please try again.");
-			}
-		}
-		if(!g.getPlayerRoom(this).playerCanRoll()){
-			System.out.println("Sorry, you cannot roll to move out of this Room, the exits are blocked!");
-		}
-
-		if (g.checkPlayerInRoom(this)) {
-			receivedValidInput = false;
-			boolean canSuggest = true;
-			while (!receivedValidInput && canSuggest) {
-				System.out.print("Would you like to suggest? (Y/N): ");
-				String userInput = scan.nextLine().toUpperCase();
-				if (userInput.equals("N")) {
-					receivedValidInput = true;
-				} else if (userInput.equals("Y")) {
-					canSuggest = false;
-					Card charCard;
-					System.out.print("Character: ");
-					charCard = isCard(scan.nextLine(), Card.CardType.CHARACTER);
-					if (charCard == null) {
-						while (charCard == null) {
-							System.out.println("Not a valid Character card, try again: ");
-							charCard = isCard(scan.nextLine(), Card.CardType.CHARACTER);
-						}
-					}
-
-					Card weapCard;
-					System.out.print("Weapon: ");
-					weapCard = isCard(scan.nextLine(), Card.CardType.WEAPON);
-					if (weapCard == null) {
-						while (weapCard == null) {
-							System.out.println("Not a valid Weapon card, try again: ");
-							weapCard = isCard(scan.nextLine(), Card.CardType.WEAPON);
-						}
-					}
-
-					Card roomCard = g.getCard(g.getPlayerRoom(this).getName());
-
-
-					CardTuple cardTup = new CardTuple(charCard, weapCard, roomCard);
-					g.moveViaSuggestion(cardTup);
-
-					Card refuteCard = g.refutationProcess(this, cardTup);
-					if (refuteCard == null) {
-						System.out.println("Your suggestion " + cardTup.toString() + " was not refuted!");
-					} else {
-						System.out.println("Your suggestion " + cardTup.toString() + " was refuted by the card " + refuteCard.getName());
-					}
-				} else {
-					System.out.println("Invalid input, please try again.");
-				}
-			}
-		}
-
-		receivedValidInput = false;
-		while (!receivedValidInput) {
-			System.out.print("Would you like to accuse? (Y/N): ");
-			String userInput = scan.nextLine().toUpperCase();
-			if (userInput.equals("Y")) {
-				return accuse();
-			} else if (userInput.equals("N")) {
-				receivedValidInput = true;
-			} else {
-				System.out.println("Invalid input, please try again.");
-			}
-		}
-		return false;
-	}
-
-
-
-	/**
-	 * Roll two dice and get their sum. Two numbers are generated
-	 * to try to mimic real dice.
-	 *
-	 * @return the numbers of both dice
-	 */
-	public Integer[] rollDice() {
-		Integer[] diceNumbers = new Integer[2];
-		diceNumbers[0] = rand.nextInt(6) + 1;
-		diceNumbers[1] = rand.nextInt(6) + 1;
-		counter = diceNumbers[0] + diceNumbers[1];
-		return diceNumbers;
-	}
-
-	public Integer[] prepareForMove(){
+	public Integer prepareForMove(){
 		locationsVisited.clear();
 		prevLocations.clear();
 		return rollDice();
 	}
-
-
+	
+	/**
+	 * Roll two dice and get their sum. Two numbers are generated
+	 * to try to mimic real dice.
+	 *
+	 * @return the total of the two dice
+	 */
+	private Integer rollDice() {
+		int first = rand.nextInt(6) + 1, second = rand.nextInt(6) + 1;
+		this.g.showDiceRollUI(first, second);
+		this.g.displayGameStateMessageUI("You rolled a " + first + " and a " + second + ".\nClick on the board to move! (one tile at a time)");
+		return first + second;
+	}
+	
 	public boolean move(Location destination) {
 		if(destination.room == null || counter < 1){
 			return false;
@@ -257,27 +132,10 @@ public class Player {
 			}
 		return false;
 	}
-
-	/**
-	 * Helper method to check if the card params cardtype matches the param cardtype
-	 * @param card
-	 * @param ct
-	 * @return Card
-	 */
-	private Card isCard(String card, Card.CardType ct) {
-		Card returnCard = g.getCard(card);
-		if(returnCard != null) {
-			if(returnCard.getType().equals(ct)) {
-				return returnCard;
-			}
-			return returnCard;
-		}
-		return returnCard;
-	}
 	
 	public Set<Card> refuteV2(CardTuple tup){
 		Set<Card> refuteOptions = new HashSet<Card>();
-		
+
 		for(Card c : hand.values()) {
 			if(tup.characterCard().equals(c)) {
 				refuteOptions.add(c);
@@ -291,87 +149,12 @@ public class Player {
 
 
 		}
-		
+
 		if(refuteOptions.size() > 0) {
 			return refuteOptions;
 		}
-		
+
 		else {return null;}
-	}
-
-	/**
-	 * Creates a card tuple of refutable cards then asks player which one they would like to refute with
-	 * @param tup
-	 * @return Card
-	 */
-	public Card refute(CardTuple tup) {
-		Set<Card> refuteOptions = new HashSet<Card>();
-		Card refuteCard = null;
-
-		for(Card c : hand.values()) {
-			if(tup.characterCard().equals(c)) {
-				refuteOptions.add(c);
-			}
-			if(tup.weaponCard().equals(c)) {
-				refuteOptions.add(c);;
-			}
-			if(tup.roomCard().equals(c)) {
-				refuteOptions.add(c);
-			}
-
-
-		}
-
-		if(!refuteOptions.isEmpty()) {
-			Scanner scan = new Scanner(System.in);
-			System.out.println("Refutable Cards:");
-			for(Card c : refuteOptions) {
-				System.out.println(c.getName());
-			}
-			System.out.println("What card would you like to refute with?: ");
-
-			while(refuteCard == null) {
-				String choice = scan.nextLine().toUpperCase();
-
-
-				if(choice.equalsIgnoreCase(tup.weaponCard().getName())) {
-					for(Card c : refuteOptions) {
-						if(c.getName().equalsIgnoreCase(choice)) {
-							refuteCard = tup.weaponCard();
-							break;
-						}
-					}
-					break;
-				}
-
-				if(choice.equalsIgnoreCase(tup.characterCard().getName())) {
-					for(Card c : refuteOptions) {
-						if(c.getName().equalsIgnoreCase(choice)) {
-							refuteCard = tup.characterCard();
-							break;
-						}
-					}
-					break;
-				}
-
-				if(choice.equalsIgnoreCase(tup.roomCard().getName())) {
-					for(Card c : refuteOptions) {
-						if(c.getName().equalsIgnoreCase(choice)) {
-							refuteCard = tup.roomCard();
-							break;
-						}
-					}
-					break;
-				}
-
-				else { System.out.println("Not a valid option please choose from your refutable cards: ");}
-			}
-			scan.close();
-		}
-
-		else {System.out.println("No cards to refute");}
-
-		return refuteCard;
 	}
 
 	/**
@@ -381,53 +164,6 @@ public class Player {
 		for(Card c : hand.values()) {
 			System.out.println(c.getName());
 		}
-	}
-
-	/**
-	 * Asks user for 3 cards if they can accuse and create a CardTuple out of the
-	 * getThreeCards method then returns a boolean based off the checkAccusation method in game
-	 * @return boolean
-	 */
-	public boolean accuse() {
-		if (!canAccuse) {
-			System.out.println("You have already made an accusation before, and cannot make another.");
-			return false;
-		} else {
-			System.out.println("Make a suggestion - type in 3 cards:");
-			CardTuple accusation = getThreeCards();
-			canAccuse = false;
-			return g.checkAccusation(accusation);
-		}
-	}
-
-	/**
-	 * Asks for 3 cards and makes sure the are 1 of each type then returns them in a cardTuple
-	 * @return CardTuple
-	 */
-	public CardTuple getThreeCards() {
-		Scanner scan = new Scanner(System.in);
-		Card charCard, weapCard, roomCard;
-		System.out.print("Character: ");
-		charCard = isCard(scan.nextLine(),Card.CardType.CHARACTER);
-		while(charCard == null) {
-			System.out.println("Not a valid Character card try again: ");
-			charCard = isCard(scan.nextLine(),Card.CardType.CHARACTER);
-		}
-
-		System.out.print("Weapon: ");
-		weapCard = isCard(scan.nextLine(),Card.CardType.WEAPON);
-		while(weapCard == null) {
-			System.out.println("Not a valid Weapon card try again: ");
-			weapCard = isCard(scan.nextLine(),Card.CardType.WEAPON);
-		}
-
-		System.out.print("Room: ");
-		roomCard = isCard(scan.nextLine(),Card.CardType.ROOM);
-		while(roomCard == null) {
-			System.out.println("Not a valid room card try again: ");
-			roomCard = isCard(scan.nextLine(),Card.CardType.ROOM);
-		}
-		return new CardTuple(charCard,weapCard,roomCard);
 	}
 	
 	public String toString() { return "player " + playerNumber + " - username: " + playerName + ", character: " + characterName + ", in hand: " + hand.toString(); }
