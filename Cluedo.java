@@ -1,3 +1,4 @@
+import java.awt.event.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -7,12 +8,6 @@ import javax.swing.*;
 import javax.swing.border.Border;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.ComponentEvent;
-import java.awt.event.ComponentListener;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
 
 public class Cluedo extends JFrame {
 
@@ -67,11 +62,11 @@ public class Cluedo extends JFrame {
             //player.giveCard(game.getCard("Lead Pipe"));
             showPlayerHand(player);
             
-            CardTuple suggestion = askForThreeCards("Choose three cards to Suggest:", "Make a Suggestion", "Suggest!");
-            showSuggestion(player, suggestion);
-            showDiceRoll(4, 2);
+            //CardTuple suggestion = askForThreeCards("Choose three cards to Suggest:", "Make a Suggestion", "Suggest!");
+            //showSuggestion(player, suggestion);
+            //showDiceRoll(4, 2);
             
-            playing = askYesOrNo("Game over! Would you like to play again?", "Cluedo Game");
+            //playing = askYesOrNo("Game over! Would you like to play again?", "Cluedo Game");
         //}
         //System.exit(0);
     }
@@ -127,32 +122,20 @@ public class Cluedo extends JFrame {
     private void loadPieceImages(){
         try{
             // Load Weapon Images
-            BufferedImage spannerImage = ImageIO.read(new File("resources/spanner.png"));
-            BufferedImage revolverImage = ImageIO.read(new File("resources/revolver.png"));
-            BufferedImage ropeImage = ImageIO.read(new File("resources/rope.png"));
-            BufferedImage leadPipeImage = ImageIO.read(new File("resources/lead_pipe.png"));
-            BufferedImage candlestickImage = ImageIO.read(new File("resources/candlestick.png"));
-            BufferedImage daggerImage = ImageIO.read(new File("resources/dagger.png"));
-            pieceImages.put("Spanner", spannerImage);
-            pieceImages.put("Revolver" , revolverImage);
-            pieceImages.put("Rope" , ropeImage);
-            pieceImages.put("Lead Pipe" , leadPipeImage);
-            pieceImages.put("Candlestick", candlestickImage);
-            pieceImages.put("Dagger", daggerImage);
+            pieceImages.put("Spanner", ImageIO.read(new File("resources/spanner.png")));
+            pieceImages.put("Revolver" , ImageIO.read(new File("resources/revolver.png")));
+            pieceImages.put("Rope" , ImageIO.read(new File("resources/rope.png")));
+            pieceImages.put("Lead Pipe" , ImageIO.read(new File("resources/lead_pipe.png")));
+            pieceImages.put("Candlestick", ImageIO.read(new File("resources/candlestick.png")));
+            pieceImages.put("Dagger", ImageIO.read(new File("resources/dagger.png")));
 
             // Load Player Images
-            BufferedImage colonelMustardImage = ImageIO.read(new File("resources/mustard.png"));
-            BufferedImage missScarletImage = ImageIO.read(new File("resources/scarlet.png"));
-            BufferedImage professorPlumImage = ImageIO.read(new File("resources/plum.png"));
-            BufferedImage missPeacockImage = ImageIO.read(new File("resources/peacock.png"));
-            BufferedImage mrGreenImage = ImageIO.read(new File("resources/green.png"));
-            BufferedImage mrsWhiteImage = ImageIO.read(new File("resources/white.png"));
-            pieceImages.put("Colonel Mustard", colonelMustardImage);
-            pieceImages.put("Miss Scarlet", missScarletImage);
-            pieceImages.put("Professor Plum", professorPlumImage);
-            pieceImages.put("Miss Peacock", missPeacockImage);
-            pieceImages.put("Mr Green", mrGreenImage);
-            pieceImages.put("Mrs White", mrsWhiteImage);
+            pieceImages.put("Colonel Mustard", ImageIO.read(new File("resources/mustard.png")));
+            pieceImages.put("Miss Scarlet", ImageIO.read(new File("resources/scarlet.png")));
+            pieceImages.put("Professor Plum", ImageIO.read(new File("resources/plum.png")));
+            pieceImages.put("Miss Peacock", ImageIO.read(new File("resources/peacock.png")));
+            pieceImages.put("Mr Green", ImageIO.read(new File("resources/green.png")));
+            pieceImages.put("Mrs White", ImageIO.read(new File("resources/white.png")));
         } catch(IOException e) {
             System.out.println("Could not load piece images from the resources directory" + e);
         }
@@ -189,7 +172,7 @@ public class Cluedo extends JFrame {
     		
     		// Empty Card Slot Image
     		Image cardSlotImage = ImageIO.read(new File("resources/card_slot.png"));
-    		emptyCardSlotImage = new ImageIcon(cardSlotImage.getScaledInstance(CARD_WIDTH, CARD_HEIGHT, Image.SCALE_DEFAULT));
+    		emptyCardSlotImage = new ImageIcon(cardSlotImage.getScaledInstance(CARD_WIDTH, CARD_HEIGHT, Image.SCALE_SMOOTH));
     	} catch(IOException e) {
             System.out.println("Could not load card images from the resources directory - " + e);
         }
@@ -287,18 +270,18 @@ public class Cluedo extends JFrame {
         // Roll button
 		JButton rollButton=new JButton("Roll"); 
 		rollButton.setFont(rollButton.getFont().deriveFont(16.0f));
-        rollButton.setBackground(Color.GREEN);
-        if(game.canRoll() == false || game.canSuggest() == false) {
-        	b1.setEnabled(false);
-        	b1.setBackground(Color.gray);
+        rollButton.setBackground(PASSAGEWAY_COLOR);
+        if(!game.canRoll() || !game.canSuggest()) {
+            rollButton.setEnabled(false);
+            rollButton.setBackground(Color.gray);
         }
 
-        if(game.canRoll() == true) {
-        	b1.setEnabled(true);
-        	b1.setBackground(Color.GREEN);
+        if(game.canRoll()) {
+            rollButton.setEnabled(true);
+            rollButton.setBackground(PASSAGEWAY_COLOR);
         }
 
-        b1.addActionListener(new ActionListener(){
+        rollButton.addActionListener(new ActionListener(){
         	public void actionPerformed(ActionEvent e){
         		//roll()
         		game.setMoved(true);
@@ -314,18 +297,18 @@ public class Cluedo extends JFrame {
         // Move button
         JButton moveButton = new JButton("Move");
         moveButton.setFont(moveButton.getFont().deriveFont(16.0f));
-        moveButton.setBackground(Color.GREEN);
-        if(game.canMove() == false) {
-        	b4.setEnabled(false);
-        	b4.setBackground(Color.gray);
+        moveButton.setBackground(PASSAGEWAY_COLOR);
+        if(!game.canMove()) {
+            moveButton.setEnabled(false);
+            moveButton.setBackground(Color.gray);
         }
 
-        if(game.canMove() == true) {
-        	b4.setEnabled(true);
-        	b4.setBackground(Color.GREEN);
+        if(game.canMove()) {
+            moveButton.setEnabled(true);
+            moveButton.setBackground(PASSAGEWAY_COLOR);
         }
 
-        b4.addActionListener(new ActionListener(){
+        moveButton.addActionListener(new ActionListener(){
         	public void actionPerformed(ActionEvent e){  
                 game.setMoved(true); 
             }
@@ -345,18 +328,18 @@ public class Cluedo extends JFrame {
         //Suggest button
         JButton suggestButton = new JButton("Suggest");
         suggestButton.setFont(suggestButton.getFont().deriveFont(16.0f));
-        suggestButton.setBackground(Color.GREEN);
-        if(game.canSuggest() == false) {
-        	b2.setEnabled(false);
-        	b2.setBackground(Color.gray);
+        suggestButton.setBackground(PASSAGEWAY_COLOR);
+        if(!game.canSuggest()) {
+            suggestButton.setEnabled(false);
+            suggestButton.setBackground(Color.gray);
         }
 
-        if(game.canSuggest() == true) {
-        	b2.setEnabled(true);
-        	b2.setBackground(Color.GREEN);
+        if(game.canSuggest()) {
+            suggestButton.setEnabled(true);
+            suggestButton.setBackground(PASSAGEWAY_COLOR);
         }
 
-        b2.addActionListener(new ActionListener(){
+        suggestButton.addActionListener(new ActionListener(){
         	public void actionPerformed(ActionEvent e){  
         		//suggest()
         		game.setAccused(true);
@@ -370,18 +353,18 @@ public class Cluedo extends JFrame {
         //Accuse button
         JButton accuseButton = new JButton("Accuse");
         accuseButton.setFont(accuseButton.getFont().deriveFont(16.0f));
-        accuseButton.setBackground(Color.GREEN);
-        if(game.canAccuse() == false) {
-        	b3.setEnabled(false);
-        	b3.setBackground(Color.gray);
+        accuseButton.setBackground(PASSAGEWAY_COLOR);
+        if(!game.canAccuse()) {
+            accuseButton.setEnabled(false);
+            accuseButton.setBackground(Color.gray);
         }
 
-        if(game.canAccuse() == true) {
-        	b3.setEnabled(true);
-        	b3.setBackground(Color.GREEN);
+        if(game.canAccuse()) {
+            accuseButton.setEnabled(true);
+            accuseButton.setBackground(PASSAGEWAY_COLOR);
         }
 
-        b3.addActionListener(new ActionListener(){
+        accuseButton.addActionListener(new ActionListener(){
         	public void actionPerformed(ActionEvent e){
         		//accuse();
                 game.setAccused(false); 
@@ -393,7 +376,7 @@ public class Cluedo extends JFrame {
         // End Turn Button
         JButton endTurnButton = new JButton("End Turn");
         endTurnButton.setFont(endTurnButton.getFont().deriveFont(16.0f));
-        endTurnButton.setBackground(Color.GREEN);
+        endTurnButton.setBackground(PASSAGEWAY_COLOR);
         constraints.weighty = 0.3;
         constraints.gridwidth = 4;
         constraints.gridx = 0; constraints.gridy = 2;
@@ -454,6 +437,12 @@ public class Cluedo extends JFrame {
             super();
             this.cell = location;
             this.game = game;
+            addMouseListener(new MouseAdapter() {
+                @Override
+                public void mouseReleased(MouseEvent e) {
+                    System.out.println(cell.point.toString());
+                }
+            });
         }
 
         private void drawPiece(Graphics g){
@@ -469,40 +458,40 @@ public class Cluedo extends JFrame {
                         Piece current = p.getValue();
                         switch(current.icon()){
                             case "c":
-                                g2d.drawImage(Cluedo.pieceImages.get("Candlestick"), padding, padding,width,height,this);
+                                g2d.drawImage(Cluedo.pieceImages.get("Candlestick").getScaledInstance(width, height, Image.SCALE_SMOOTH), padding, padding,this);
                                 break;
                             case "d":
-                                g2d.drawImage(Cluedo.pieceImages.get("Dagger"), padding, padding,width,height,this);
+                                g2d.drawImage(Cluedo.pieceImages.get("Dagger").getScaledInstance(width, height, Image.SCALE_SMOOTH), padding, padding,this);
                                 break;
                             case "l":
-                                g2d.drawImage(Cluedo.pieceImages.get("Lead Pipe"), padding, padding,width,height,this);
+                                g2d.drawImage(Cluedo.pieceImages.get("Lead Pipe").getScaledInstance(width, height, Image.SCALE_SMOOTH), padding, padding,this);
                                 break;
                             case "g":
-                                g2d.drawImage(Cluedo.pieceImages.get("Revolver"), padding, padding,width,height,this);
+                                g2d.drawImage(Cluedo.pieceImages.get("Revolver").getScaledInstance(width, height, Image.SCALE_SMOOTH), padding, padding,this);
                                 break;
                             case "r":
-                                g2d.drawImage(Cluedo.pieceImages.get("Rope"), padding, padding,width,height,this);
+                                g2d.drawImage(Cluedo.pieceImages.get("Rope").getScaledInstance(width, height, Image.SCALE_SMOOTH), padding, padding,this);
                                 break;
                             case "s":
-                                g2d.drawImage(Cluedo.pieceImages.get("Spanner"), padding, padding,width,height,this);
+                                g2d.drawImage(Cluedo.pieceImages.get("Spanner").getScaledInstance(width, height, Image.SCALE_SMOOTH), padding, padding,this);
                                 break;
                             case "P":
-                                g2d.drawImage(Cluedo.pieceImages.get("Miss Peacock"), padding, padding,width,height,this);
+                                g2d.drawImage(Cluedo.pieceImages.get("Miss Peacock").getScaledInstance(width, height, Image.SCALE_SMOOTH), padding, padding,this);
                                 break;
                             case "L":
-                                g2d.drawImage(Cluedo.pieceImages.get("Professor Plum"), padding, padding,width,height,this);
+                                g2d.drawImage(Cluedo.pieceImages.get("Professor Plum").getScaledInstance(width, height, Image.SCALE_SMOOTH), padding, padding,this);
                                 break;
                             case "M":
-                                g2d.drawImage(Cluedo.pieceImages.get("Colonel Mustard"), padding, padding,width,height,this);
+                                g2d.drawImage(Cluedo.pieceImages.get("Colonel Mustard").getScaledInstance(width, height, Image.SCALE_SMOOTH), padding, padding,this);
                                 break;
                             case "W":
-                                g2d.drawImage(Cluedo.pieceImages.get("Mrs White"), padding, padding,width,height,this);
+                                g2d.drawImage(Cluedo.pieceImages.get("Mrs White").getScaledInstance(width, height, Image.SCALE_SMOOTH), padding, padding,this);
                                 break;
                             case "G":
-                                g2d.drawImage(Cluedo.pieceImages.get("Mr Green"), padding, padding,width,height,this);
+                                g2d.drawImage(Cluedo.pieceImages.get("Mr Green").getScaledInstance(width, height, Image.SCALE_SMOOTH), padding, padding,this);
                                 break;
                             case "S":
-                                g2d.drawImage(Cluedo.pieceImages.get("Miss Scarlet"), padding, padding,width,height,this);
+                                g2d.drawImage(Cluedo.pieceImages.get("Miss Scarlet").getScaledInstance(width, height, Image.SCALE_SMOOTH), padding, padding,this);
                                 break;
                         }
                     }
@@ -609,7 +598,7 @@ public class Cluedo extends JFrame {
         for (int i = 1; i < numOfPlayers+1; i++) {
             playerCreationSuccessful = false;
             selectedCharacterButton = null;
-            while (playerCreationSuccessful == false) {
+            while (!playerCreationSuccessful) {
                 playerName = null;
                 characterName = null;
                 playerNameField.setText("");
@@ -688,9 +677,9 @@ public class Cluedo extends JFrame {
      * @param secondDieValue
      */
     public void showDiceRoll(int firstDieValue, int secondDieValue) {
-    	ImageIcon dieIcon = new ImageIcon(diceImages.get(firstDieValue).getScaledInstance(DIE_SIZE, DIE_SIZE, Image.SCALE_DEFAULT));
+    	ImageIcon dieIcon = new ImageIcon(diceImages.get(firstDieValue).getScaledInstance(DIE_SIZE, DIE_SIZE, Image.SCALE_SMOOTH));
     	this.die1.setIcon(dieIcon);
-    	dieIcon = new ImageIcon(diceImages.get(secondDieValue).getScaledInstance(DIE_SIZE, DIE_SIZE, Image.SCALE_DEFAULT));
+    	dieIcon = new ImageIcon(diceImages.get(secondDieValue).getScaledInstance(DIE_SIZE, DIE_SIZE, Image.SCALE_SMOOTH));
     	this.die2.setIcon(dieIcon);
     	this.repaint();
     }
@@ -702,7 +691,7 @@ public class Cluedo extends JFrame {
     public void showPlayerHand(Player player) {
     	currentPlayerHand.removeAll();
     	for (Map.Entry<String,Card> card : player.getHand().entrySet()) {
-    		ImageIcon cardIcon = new ImageIcon(cardImages.get(card.getValue().getName()).getScaledInstance(CARD_WIDTH, CARD_HEIGHT, Image.SCALE_DEFAULT));
+    		ImageIcon cardIcon = new ImageIcon(cardImages.get(card.getValue().getName()).getScaledInstance(CARD_WIDTH, CARD_HEIGHT, Image.SCALE_SMOOTH));
     		currentPlayerHand.add(new JLabel(cardIcon));
     	}
     	addEmptyCardSlotsToHand(MAX_CARD_COUNT-player.getHand().size());
@@ -729,11 +718,11 @@ public class Cluedo extends JFrame {
     	suggestedCardsPanel.removeAll();
     	ImageIcon cardIcon;
     	
-    	cardIcon = new ImageIcon(cardImages.get(suggestion.characterCard().getName()).getScaledInstance(CARD_WIDTH, CARD_HEIGHT, Image.SCALE_DEFAULT));
+    	cardIcon = new ImageIcon(cardImages.get(suggestion.characterCard().getName()).getScaledInstance(CARD_WIDTH, CARD_HEIGHT, Image.SCALE_SMOOTH));
     	suggestedCardsPanel.add(new JLabel(cardIcon));
-    	cardIcon = new ImageIcon(cardImages.get(suggestion.weaponCard().getName()).getScaledInstance(CARD_WIDTH, CARD_HEIGHT, Image.SCALE_DEFAULT));
+    	cardIcon = new ImageIcon(cardImages.get(suggestion.weaponCard().getName()).getScaledInstance(CARD_WIDTH, CARD_HEIGHT, Image.SCALE_SMOOTH));
     	suggestedCardsPanel.add(new JLabel(cardIcon));
-    	cardIcon = new ImageIcon(cardImages.get(suggestion.roomCard().getName()).getScaledInstance(CARD_WIDTH, CARD_HEIGHT, Image.SCALE_DEFAULT));
+    	cardIcon = new ImageIcon(cardImages.get(suggestion.roomCard().getName()).getScaledInstance(CARD_WIDTH, CARD_HEIGHT, Image.SCALE_SMOOTH));
     	suggestedCardsPanel.add(new JLabel(cardIcon));
     	
     	this.repaint();
