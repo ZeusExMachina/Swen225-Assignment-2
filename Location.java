@@ -64,4 +64,20 @@ public class Location {
         boolean squareIsOccupied = board.currentBoard[point.y][point.x-1].occupied;
         return !westWall && !squareIsOccupied;
     }
+
+    public String checkAdjacent(Location other){
+        if(this.point.x == other.point.x && this.point.y - other.point.y == 1){
+            return "W";
+        }
+        if(this.point.x - other.point.x == 1 && this.point.y == other.point.y){
+            return "A";
+        }
+        if(this.point.x == other.point.x && this.point.y - other.point.y == -1){
+            return "S";
+        }
+        if(this.point.x - other.point.x == -1 && this.point.y == other.point.y){
+            return "D";
+        }
+        return "Invalid";
+    }
 }
