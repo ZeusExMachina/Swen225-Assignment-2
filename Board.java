@@ -1,5 +1,6 @@
 import java.io.*;
 import java.util.*;
+import java.util.regex.Pattern;
 
 /**
  * Represents the Board in which the pieces and players move around.
@@ -29,6 +30,10 @@ public class Board {
 
     public Map<String, Piece> getPieces() {
         return pieces;
+    }
+
+    public Location[][] getCurrentBoard() {
+        return currentBoard;
     }
 
     /**
@@ -142,37 +147,36 @@ public class Board {
     }
 
     /**
-     * Print the Board out to the console
+     * Places the Players icons onto the Board according
+     * to their Location.
      */
-    public void draw(){
+    private void placePlayers(){
+        for (Piece p : pieces.values()){
+            if(p.icon().matches("^[GWPLSM]$")) {
+                int boardRow = p.location().point.y;
+                int boardColumn = p.location().point.x;
+                int charIndex = 4 * (boardColumn + 1) - 2;
+                int charRow = 2 * boardRow + 1;
+                printableBoard[charRow].replace(charIndex, charIndex + 1, p.icon());
+            }
+        }
+    }
+
+    /**
+     * Print the Board out to the console, without
+     * the pieces because they are randomly placed and
+     * will interfere with JUnit tests
+     */
+    public String draw(){
+        StringBuilder output = new StringBuilder();
         placeWallsAndRooms();
-        placePieces();
+        placePlayers();
         addRoomLabels();
 
-        if(exitLabelsRequired){
-            addExitLabels();
-        }
-
         for(StringBuilder s : printableBoard){
-            System.out.println(s);
+            output.append(s).append("\n");
         }
-
-    }
-    
-    /**
-     * Labels the exits on the printableBoard if there are 
-     * multiple ways to exit a Room
-     */
-    public void addExitLabels(){
-        int i = 1;
-        for(Location exit : exitsToLabel){
-            int boardRow = exit.point.y;
-            int boardColumn = exit.point.x;
-            int charIndex = 4 * (boardColumn+1) - 2;
-            int charRow = 2*boardRow+1;
-            printableBoard[charRow].replace(charIndex,charIndex+1, String.valueOf(i++));
-        }
-        exitLabelsRequired = false;
+        return output.toString();
     }
 
     /**
