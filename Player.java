@@ -78,12 +78,14 @@ public class Player {
 
 	public boolean move(Location destination) {
 		if(destination.room == null || counter < 1){
+			if(counter < 1 || !g.getCanRoll()) {
+				g.displayGameStateMessageUI("You've used up all the dice roll moves");
+			}
 			return false;
 		}
 
 		Location currentLocation;
 		Location newLocation;
-
 
 		// First valid option is a player exiting a room
 		if (g.checkPlayerInRoom(this) && g.getPlayerRoom(this).getUnoccupiedExits().contains(destination)) {
@@ -94,12 +96,11 @@ public class Player {
 
 		// Second valid option is a player entering a room
 		if(!destination.room.getName().equals("Passageway")
-				&& destination.room.getEntrances().contains(g.getPlayerLocation(this))){
+				&& destination.room.getExits().contains(g.getPlayerLocation(this))){
 			g.movePlayer(this, destination.room.getRandomRoomLocation());
 			counter = 0;
 			return true;
 		}
-
 
 		// Finally the third option is moving to an adjacent square
 		// in the passageway
@@ -126,9 +127,7 @@ public class Player {
 					return true;
 				}
 			} else if (moveAttemptResult < 0) {
-				System.out.println("Cannot move in that direction, please try again.");
-			} else if (moveAttemptResult > 0) {
-				System.out.println("Already moved there this turn, please try again.");
+
 			}
 		}
 		return false;
