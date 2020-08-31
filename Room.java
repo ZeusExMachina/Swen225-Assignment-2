@@ -48,6 +48,10 @@ public class Room {
         return unoccupiedExits;
     }
 
+    public Set<Location> getExits() {
+        return exits;
+    }
+
     public boolean playerCanRoll(){
         // Can always roll when in the hallway
         if(name.equals("Passageway")){
