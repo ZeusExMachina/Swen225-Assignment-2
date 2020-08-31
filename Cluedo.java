@@ -52,30 +52,6 @@ public class Cluedo extends JFrame {
 
     public Game getGame() { return game; }
 
-    /*public void playGame() {
-        boolean playing = ;
-        while (playing) {
-
-            Player player = new Player(1, "Meep", "Colonel Mustard", this.game);
-            player.giveCard(game.getCard("Miss Scarlet"));
-            player.giveCard(game.getCard("Colonel Mustard"));
-            player.giveCard(game.getCard("Mr Green"));
-            player.giveCard(game.getCard("Spanner"));
-            player.giveCard(game.getCard("Candlestick"));
-            player.giveCard(game.getCard("Revolver"));
-            player.giveCard(game.getCard("Lead Pipe"));
-            showPlayerHand(player);
-
-            CardTuple suggestion = askForThreeCards("Choose three cards to Suggest:", "Make a Suggestion", "Suggest!");
-            showSuggestion(player, suggestion);
-            showDiceRoll(4, 2);
-
-            // After a game is finished, ask if they want to play again
-            playing =
-        }
-        //System.exit(0);
-    }*/
-
     public void setupAndRunCluedo() {
         if (askYesOrNo("Welcome to Cluedo! Would you like to play?", "Cluedo Game")) {
             // Initialize the Game model and the UI
