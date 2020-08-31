@@ -87,6 +87,10 @@ public class Game {
 		// TODO: Maybe also show the murder conditions at either end
 	}
 
+	public boolean getCanRoll(){
+		return canRoll;
+	}
+
 	/**
 	 * Begin the next Player's turn, setting up what actions
 	 * they can and cannot do.
@@ -116,9 +120,10 @@ public class Game {
 
 	public void playerRollsDice() {
 		// First, roll some dice
-		int moveAmount = currentPlayer.prepareForMove();
 		canRoll = false;
 		userInterface.setRollButton(false);
+
+		int moveAmount = currentPlayer.prepareForMove();
 
 		// Then move!
 
