@@ -84,6 +84,11 @@ public class Player {
 			return false;
 		}
 
+		// Ignore clicks within Rooms if a Players is currently in one
+		if(g.checkPlayerInRoom(this) && !destination.room.getName().equals("Passageway")){
+			return false;
+		}
+
 		Location currentLocation;
 		Location newLocation;
 
@@ -99,6 +104,7 @@ public class Player {
 				&& destination.room.getExits().contains(g.getPlayerLocation(this))){
 			g.movePlayer(this, destination.room.getRandomRoomLocation());
 			counter = 0;
+			g.enableSuggestion();
 			return true;
 		}
 
