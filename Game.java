@@ -66,6 +66,14 @@ public class Game {
 		this.userInterface = ui;
 	}
 
+	/**
+	 * Game constructor without GUI for JUnit testing
+	 */
+	public Game(){
+		this.board = new Board();
+		this.userInterface = null;
+	}
+
 	// ----------------- WHILE GAME RUNS / PLAYING TURNS -------------------
 
 	/**
@@ -89,6 +97,14 @@ public class Game {
 
 	public boolean getCanRoll(){
 		return canRoll;
+	}
+
+	public Map<Integer, Player> getPlayers(){
+		return players;
+	}
+
+	public Location[][] getBoardLocations(){
+		return board.getCurrentBoard();
 	}
 
 	/**
@@ -299,18 +315,28 @@ public class Game {
 		return board.getPieces();
 	}
 
+	public String printBoard(){
+		return board.draw();
+	}
+
 	// ------------------ UPDATING UI ----------------------
 
 	public void displayGameStateMessageUI(String text) {
-		userInterface.displayGameStateMessage(text);
+		if(userInterface != null) {
+			userInterface.displayGameStateMessage(text);
+		}
 	}
 
 	public void showCurrentPlayerTextUI(String text) {
-		userInterface.showCurrentPlayerText(text);
+		if(userInterface != null) {
+			userInterface.showCurrentPlayerText(text);
+		}
 	}
 
 	public void showDiceRollUI(int firstDieValue, int secondDieValue) {
-		userInterface.showDiceRoll(firstDieValue, secondDieValue);
+		if(userInterface != null){
+			userInterface.showDiceRoll(firstDieValue, secondDieValue);
+		}
 	}
 
 	public CardTuple askForThreeCardsUI(String message, String titleMessage, String buttonName) {
