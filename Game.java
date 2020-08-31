@@ -124,13 +124,6 @@ public class Game {
 		userInterface.setRollButton(false);
 
 		int moveAmount = currentPlayer.prepareForMove();
-
-		// Then move!
-
-
-		// When finished moving, check if in a room to change whether or not player can suggest
-		canSuggest = checkPlayerInRoom(currentPlayer);
-		userInterface.setSuggestButton(canSuggest);
 	}
 
 	public void suggestionMade() {
@@ -157,6 +150,11 @@ public class Game {
 	public void endCurrentTurn() {
 		if (!allPlayersCanAccuse()) { gameState = -1; }
 		play();
+	}
+
+	public void enableSuggestion(){
+		canSuggest = checkPlayerInRoom(currentPlayer);
+		userInterface.setSuggestButton(canSuggest);
 	}
 
 	/**
