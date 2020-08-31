@@ -380,7 +380,7 @@ public class Board {
      * @param location The destination location
      */
     public void movePlayer(Player player, Location location){
-        pieces.get(player.getPlayerName()).setLocation(location);
+        pieces.get(player.getCharacterName()).setLocation(location);
     }
 
 
