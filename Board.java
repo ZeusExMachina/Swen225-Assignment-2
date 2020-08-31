@@ -476,7 +476,7 @@ public class Board {
      * @return A Room object
      */
     public Room getPlayerRoom(Player player){
-        return pieces.get(player.getPlayerName()).location().room;
+        return pieces.get(player.getCharacterName()).location().room;
     }
 
 }
