@@ -21,10 +21,10 @@ public class Cluedo extends JFrame {
     public static final Color ROOM_COLOR = new Color(201,191,192);
     public static final Color EMPTY_COLOR = new Color(79,156,100);
     public static final Color WALL_COLOR = new Color(87, 47, 32);
-
+    
     public static final int WALL_THICKNESS = 8;
-    private final int CARD_WIDTH = 80;
-    private final int CARD_HEIGHT = 112;
+    private final int CARD_WIDTH = 85;
+    private final int CARD_HEIGHT = 119;
     private final int DIE_SIZE = 50;
     private final int MAX_CARD_COUNT = 6;
 
@@ -37,7 +37,6 @@ public class Cluedo extends JFrame {
     private JLabel suggesterPlayerNameDisplay;
     private JLabel currentPlayerNameDisplay;
     private JLabel die1, die2;
-    private JPanel suggestedCardsPanel;
     private JPanel currentPlayerHand;
     private JButton rollButton;
     private JButton suggestButton;
@@ -51,10 +50,10 @@ public class Cluedo extends JFrame {
     }
 
     public Game getGame() { return game; }
-
+    
     public void setupAndRunCluedo() {
-        if (askYesOrNo("Welcome to Cluedo! Would you like to play?", "Cluedo Game")) {
-            // Initialize the Game model and the UI
+    	if (askYesOrNo("Welcome to Cluedo! Would you like to play?", "Cluedo Game")) {
+    		// Initialize the Game model and the UI
             this.game = new Game(this);
             initUI(game);
             // Ask how many players will join
@@ -63,74 +62,47 @@ public class Cluedo extends JFrame {
             game.setup();
             // Play the game
             game.play();
-        } else { System.exit(0); }
+    	} else { System.exit(0); }
     }
-
+    
     public void finishGame(String endMessage, CardTuple murderConditions) {
-        // Display the end-of-game result, as well as the murder conditions of the game
-        JPanel endGamePanel = new JPanel();
-        endGamePanel.setLayout(new BoxLayout(endGamePanel, BoxLayout.PAGE_AXIS));
-
-        JPanel labelPanel1 = new JPanel(new BorderLayout());
-        labelPanel1.add(new JLabel(endMessage, JLabel.LEFT), BorderLayout.WEST);
-        endGamePanel.add(labelPanel1);
-        endGamePanel.add(new JPanel());
-
-        JPanel labelPanel2 = new JPanel(new BorderLayout());
-        labelPanel2.add(new JLabel("Winning combination:", JLabel.LEFT), BorderLayout.WEST);
-        endGamePanel.add(labelPanel2);
-
-        JPanel winConditionPanel = new JPanel(new FlowLayout());
-        ImageIcon cardIcon = new ImageIcon(cardImages.get(murderConditions.characterCard().getName()).getScaledInstance(CARD_WIDTH, CARD_HEIGHT, Image.SCALE_SMOOTH));
-        winConditionPanel.add(new JLabel(cardIcon));
-        cardIcon = new ImageIcon(cardImages.get(murderConditions.weaponCard().getName()).getScaledInstance(CARD_WIDTH, CARD_HEIGHT, Image.SCALE_SMOOTH));
-        winConditionPanel.add(new JLabel(cardIcon));
-        cardIcon = new ImageIcon(cardImages.get(murderConditions.roomCard().getName()).getScaledInstance(CARD_WIDTH, CARD_HEIGHT, Image.SCALE_SMOOTH));
-        winConditionPanel.add(new JLabel(cardIcon));
-        endGamePanel.add(winConditionPanel);
-
-        JOptionPane.showMessageDialog(null, endGamePanel);
-
-        // Ask user if they want to play again
-        if (askYesOrNo("Game over! Would you like to play again?", "Cluedo Game")) {
-            this.dispose();
-            setupAndRunCluedo();
-        }
-        else { System.exit(0); }
+    	// Display the end-of-game result, as well as the murder conditions of the game
+    	JPanel endGamePanel = new JPanel();
+    	endGamePanel.setLayout(new BoxLayout(endGamePanel, BoxLayout.PAGE_AXIS));
+    	
+    	JPanel labelPanel1 = new JPanel(new BorderLayout());
+    	labelPanel1.add(new JLabel(endMessage, JLabel.LEFT), BorderLayout.WEST);
+    	endGamePanel.add(labelPanel1);
+    	endGamePanel.add(new JPanel());
+    	
+    	JPanel labelPanel2 = new JPanel(new BorderLayout());
+    	labelPanel2.add(new JLabel("Winning combination:", JLabel.LEFT), BorderLayout.WEST);
+    	endGamePanel.add(labelPanel2);
+    	
+    	JPanel winConditionPanel = new JPanel(new FlowLayout());
+    	showCardTuple(winConditionPanel, murderConditions);
+    	endGamePanel.add(winConditionPanel);
+    	
+    	JOptionPane.showMessageDialog(null, endGamePanel, "Cluedo Game", JOptionPane.PLAIN_MESSAGE);
+    	
+    	// Ask user if they want to play again
+    	if (askYesOrNo("Game over! Would you like to play again?", "Cluedo Game")) { 
+    		this.dispose();
+    		setupAndRunCluedo();
+    	}
+    	else { System.exit(0); }
     }
-
-    public Card refuting(Set<Card> refuteOptions) {
-        Card refuteCard = null;
-        JPanel overallPanel = new JPanel();
-        overallPanel.setLayout(new BoxLayout(overallPanel, BoxLayout.PAGE_AXIS));
-        JComboBox<String> refutingOptions = new JComboBox<String>();
-
-        for(Card c : refuteOptions) {
-            refutingOptions.addItem(c.toString());
-        }
-
-        overallPanel.add(new JLabel("Choose Card to refute"));
-        overallPanel.add(refutingOptions);
-
-        for(Card c : refuteOptions) {
-            if(c.toString().equals(refutingOptions.getSelectedItem())) {
-                refuteCard = c;
-            }
-        }
-        return refuteCard;
-    }
-
+    
     // --------------------- FOR SETUP ------------------------
 
     private void initUI(Game game){
-        setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
         getContentPane().setLayout(new BorderLayout());
 
         loadPieceImages();
         loadCardImages();
         loadDiceImages();
-
+        
         setJMenuBar(createMenuBar());
         getContentPane().add(createBoardCanvas(game), BorderLayout.EAST);
         getContentPane().add(createLeftPanel(), BorderLayout.CENTER);
@@ -138,10 +110,10 @@ public class Cluedo extends JFrame {
         addWindowListener(new WindowAdapter() {
             public void windowClosing(WindowEvent e) {
                 int response = JOptionPane.showConfirmDialog(null, "Are you sure you want to leave the game?", "Closing Cluedo", JOptionPane.YES_NO_OPTION);
-                if (response == JOptionPane.YES_OPTION) { System.exit(0); }
+                if (response == 0) { System.exit(0); }
             }
         });
-
+        
         pack();
         setResizable(true);
         setVisible(true);
@@ -150,7 +122,7 @@ public class Cluedo extends JFrame {
     private void loadPieceImages(){
         try{
             // Load Weapon Images
-            pieceImages.put("Spanner", ImageIO.read(new File("resources/spanner.png")));
+        	pieceImages.put("Spanner", ImageIO.read(new File("resources/spanner.png")));
             pieceImages.put("Revolver" , ImageIO.read(new File("resources/revolver.png")));
             pieceImages.put("Rope" , ImageIO.read(new File("resources/rope.png")));
             pieceImages.put("Lead Pipe" , ImageIO.read(new File("resources/lead_pipe.png")));
@@ -168,57 +140,57 @@ public class Cluedo extends JFrame {
             System.out.println("Could not load piece images from the resources directory" + e);
         }
     }
-
+    
     private void loadCardImages() {
-        try {
-            // Load Character Cards
-            cardImages.put("Miss Scarlet", ImageIO.read(new File("resources/scarlet_card.png")));
-            cardImages.put("Colonel Mustard", ImageIO.read(new File("resources/mustard_card.png")));
-            cardImages.put("Mrs White", ImageIO.read(new File("resources/white_card.png")));
-            cardImages.put("Mr Green", ImageIO.read(new File("resources/green_card.png")));
-            cardImages.put("Mrs Peacock", ImageIO.read(new File("resources/peacock_card.png")));
-            cardImages.put("Professor Plum", ImageIO.read(new File("resources/plum_card.png")));
-
-            // Load Weapon Cards
-            cardImages.put("Candlestick", ImageIO.read(new File("resources/candlestick_card.png")));
-            cardImages.put("Dagger", ImageIO.read(new File("resources/dagger_card.png")));
-            cardImages.put("Lead Pipe", ImageIO.read(new File("resources/lead_pipe_card.png")));
-            cardImages.put("Rope", ImageIO.read(new File("resources/rope_card.png")));
-            cardImages.put("Revolver", ImageIO.read(new File("resources/revolver_card.png")));
-            cardImages.put("Spanner", ImageIO.read(new File("resources/spanner_card.png")));
-
-            // Load Room Cards
-            cardImages.put("Kitchen", ImageIO.read(new File("resources/kitchen_card.png")));
-            cardImages.put("Ball Room", ImageIO.read(new File("resources/ball_room_card.png")));
-            cardImages.put("Conservatory", ImageIO.read(new File("resources/conservatory_card.png")));
-            cardImages.put("Dining Room", ImageIO.read(new File("resources/dining_room_card.png")));
-            cardImages.put("Billiard Room", ImageIO.read(new File("resources/billiard_room_card.png")));
-            cardImages.put("Library", ImageIO.read(new File("resources/library_card.png")));
-            cardImages.put("Lounge", ImageIO.read(new File("resources/lounge_card.png")));
-            cardImages.put("Hall", ImageIO.read(new File("resources/hall_card.png")));
-            cardImages.put("Study", ImageIO.read(new File("resources/study_card.png")));
-
-            // Empty Card Slot Image
-            Image cardSlotImage = ImageIO.read(new File("resources/card_slot.png"));
-            emptyCardSlotImage = new ImageIcon(cardSlotImage.getScaledInstance(CARD_WIDTH, CARD_HEIGHT, Image.SCALE_SMOOTH));
-        } catch(IOException e) {
+    	try {
+    		// Load Character Cards
+    		cardImages.put("Miss Scarlet", ImageIO.read(new File("resources/scarlet_card.png")));
+    		cardImages.put("Colonel Mustard", ImageIO.read(new File("resources/mustard_card.png")));
+    		cardImages.put("Mrs White", ImageIO.read(new File("resources/white_card.png")));
+    		cardImages.put("Mr Green", ImageIO.read(new File("resources/green_card.png")));
+    		cardImages.put("Mrs Peacock", ImageIO.read(new File("resources/peacock_card.png")));
+    		cardImages.put("Professor Plum", ImageIO.read(new File("resources/plum_card.png")));
+    		
+    		// Load Weapon Cards
+    		cardImages.put("Candlestick", ImageIO.read(new File("resources/candlestick_card.png")));
+    		cardImages.put("Dagger", ImageIO.read(new File("resources/dagger_card.png")));
+    		cardImages.put("Lead Pipe", ImageIO.read(new File("resources/lead_pipe_card.png")));
+    		cardImages.put("Rope", ImageIO.read(new File("resources/rope_card.png")));
+    		cardImages.put("Revolver", ImageIO.read(new File("resources/revolver_card.png")));
+    		cardImages.put("Spanner", ImageIO.read(new File("resources/spanner_card.png")));
+    		
+    		// Load Room Cards
+    		cardImages.put("Kitchen", ImageIO.read(new File("resources/kitchen_card.png")));
+    		cardImages.put("Ball Room", ImageIO.read(new File("resources/ball_room_card.png")));
+    		cardImages.put("Conservatory", ImageIO.read(new File("resources/conservatory_card.png")));
+    		cardImages.put("Dining Room", ImageIO.read(new File("resources/dining_room_card.png")));
+    		cardImages.put("Billiard Room", ImageIO.read(new File("resources/billiard_room_card.png")));
+    		cardImages.put("Library", ImageIO.read(new File("resources/library_card.png")));
+    		cardImages.put("Lounge", ImageIO.read(new File("resources/lounge_card.png")));
+    		cardImages.put("Hall", ImageIO.read(new File("resources/hall_card.png")));
+    		cardImages.put("Study", ImageIO.read(new File("resources/study_card.png")));
+    		
+    		// Empty Card Slot Image
+    		Image cardSlotImage = ImageIO.read(new File("resources/card_slot.png"));
+    		emptyCardSlotImage = new ImageIcon(cardSlotImage.getScaledInstance(CARD_WIDTH, CARD_HEIGHT, Image.SCALE_SMOOTH));
+    	} catch(IOException e) {
             System.out.println("Could not load card images from the resources directory - " + e);
         }
     }
-
+    
     private void loadDiceImages() {
-        try {
-            diceImages.put(1, ImageIO.read(new File("resources/dice_one.png")));
-            diceImages.put(2, ImageIO.read(new File("resources/dice_two.png")));
-            diceImages.put(3, ImageIO.read(new File("resources/dice_three.png")));
-            diceImages.put(4, ImageIO.read(new File("resources/dice_four.png")));
-            diceImages.put(5, ImageIO.read(new File("resources/dice_five.png")));
-            diceImages.put(6, ImageIO.read(new File("resources/dice_six.png")));
-        } catch(IOException e) {
+    	try {
+    		diceImages.put(1, ImageIO.read(new File("resources/dice_one.png")));
+    		diceImages.put(2, ImageIO.read(new File("resources/dice_two.png")));
+    		diceImages.put(3, ImageIO.read(new File("resources/dice_three.png")));
+    		diceImages.put(4, ImageIO.read(new File("resources/dice_four.png")));
+    		diceImages.put(5, ImageIO.read(new File("resources/dice_five.png")));
+    		diceImages.put(6, ImageIO.read(new File("resources/dice_six.png")));
+    	} catch(IOException e) {
             System.out.println("Could not load dice images from the resources directory - " + e);
         }
     }
-
+    
     private JMenuBar createMenuBar(){
         JMenuBar menuBar = new JMenuBar();
 
@@ -238,14 +210,14 @@ public class Cluedo extends JFrame {
 
         return menuBar;
     }
-
+    
     private JPanel createLeftPanel() {
-        JPanel leftPanel = new JPanel(new GridBagLayout());
-        GridBagConstraints constraints = new GridBagConstraints();
-
-        constraints.fill = GridBagConstraints.VERTICAL;
+    	JPanel leftPanel = new JPanel(new GridBagLayout());
+    	GridBagConstraints constraints = new GridBagConstraints();
+        
+    	constraints.fill = GridBagConstraints.VERTICAL;
         constraints.weightx = 0.1;
-
+    	
         // Player Name Display
         this.currentPlayerNameDisplay = new JLabel("[Current Player's Name Here]", JLabel.CENTER);
         this.currentPlayerNameDisplay.setFont(currentPlayerNameDisplay.getFont().deriveFont(15.0f));
@@ -253,7 +225,7 @@ public class Cluedo extends JFrame {
         constraints.weighty = 0.15;
         constraints.ipady = 5;
         leftPanel.add(this.currentPlayerNameDisplay, constraints);
-
+        
         // Current Game State Description (e.g. A's turn to refute B)
         this.displayMessage = new JTextArea("Game start");
         this.displayMessage.setEditable(false);
@@ -261,34 +233,31 @@ public class Cluedo extends JFrame {
         constraints.weighty = 0.35;
         constraints.ipady = 0;
         leftPanel.add(this.displayMessage, constraints);
-
+        
         // Player Actions Label
         constraints.gridx = 0; constraints.gridy = 2;
         constraints.weighty = 0.1;
         leftPanel.add(new JLabel("Player Actions"), constraints);
-
+        
         // Button Panel
         constraints.gridx = 0; constraints.gridy = 3;
         constraints.gridheight = 1;
-        constraints.weighty = 1.0;
+        constraints.weighty = 1.0; 
         leftPanel.add(createButtonPanel(game), constraints);
-
-        // Suggested Cards Panel
-        constraints.gridx = 0; constraints.gridy = 4;
-        constraints.weighty = 0.1;
-        leftPanel.add(createSuggestedCardsPanel(), constraints);
-
+        
         // Player's Cards Panel
+        constraints.gridx = 0; constraints.gridy = 4;
+        leftPanel.add(new JPanel());
         constraints.gridx = 0; constraints.gridy = 5;
         constraints.ipady = CARD_HEIGHT/3;
         leftPanel.add(createCardPanel(game), constraints);
-
+        
         return leftPanel;
     }
 
     private JPanel createButtonPanel(Game game){
-        JPanel panel = new JPanel();
-        panel.setBounds(40,80,200,200);
+		JPanel panel = new JPanel();
+		panel.setBounds(40,80,200,200);
         panel.setBackground(Color.gray);
         panel.setLayout(new GridBagLayout());
         GridBagConstraints constraints = new GridBagConstraints();
@@ -296,21 +265,21 @@ public class Cluedo extends JFrame {
         constraints.insets = new Insets(12, 12, 12 , 12);
 
         // Roll button
-        rollButton=new JButton("Roll");
-        rollButton.setFont(rollButton.getFont().deriveFont(16.0f));
+		rollButton=new JButton("Roll"); 
+		rollButton.setFont(rollButton.getFont().deriveFont(16.0f));
         setRollButton(true);
         rollButton.addActionListener((event) -> game.playerRollsDice());
         constraints.weightx = 1.0;
         constraints.weighty = 0.3;
         constraints.gridx = 0; constraints.gridy = 0;
         panel.add(rollButton, constraints);
-
+        
         // Spacer
         constraints.gridx = 1; constraints.gridy = 0;
         JPanel spacer = new JPanel();
         spacer.setBackground(Color.gray);
         panel.add(spacer, constraints);
-
+        
         // Dice display
         this.die1 = new JLabel();
         this.die2 = new JLabel();
@@ -319,7 +288,7 @@ public class Cluedo extends JFrame {
         panel.add(die1, constraints);
         constraints.gridx = 3; constraints.gridy = 0;
         panel.add(die2, constraints);
-
+        
         //Suggest button
         suggestButton = new JButton("Suggest");
         suggestButton.setFont(suggestButton.getFont().deriveFont(16.0f));
@@ -346,44 +315,30 @@ public class Cluedo extends JFrame {
         constraints.gridwidth = 4;
         constraints.gridx = 0; constraints.gridy = 2;
         panel.add(endTurnButton, constraints);
-
+        
         return panel;
     }
-
-    private JPanel createSuggestedCardsPanel() {
-        JPanel suggestedPanel = new JPanel(new BorderLayout());
-
-        this.suggesterPlayerNameDisplay = new JLabel("Suggestion Panel");
-        this.suggesterPlayerNameDisplay.setFont(suggesterPlayerNameDisplay.getFont().deriveFont(13.0f));
-        suggestedPanel.add(this.suggesterPlayerNameDisplay, BorderLayout.NORTH);
-
-        this.suggestedCardsPanel = new JPanel(new FlowLayout());
-        suggestedPanel.add(this.suggestedCardsPanel);
-        clearSuggestion();
-
-        return suggestedPanel;
-    }
-
+    
     private JPanel createCardPanel(Game game){
         JPanel cardPanel = new JPanel(new BorderLayout());
-        cardPanel.setPreferredSize(new Dimension(3*CARD_WIDTH+50, 2*CARD_HEIGHT));
-
+        cardPanel.setPreferredSize(new Dimension(3*CARD_WIDTH+50, 3*CARD_HEIGHT));
+        
         JPanel labelPanel = new JPanel(new BorderLayout());
         JLabel label = new JLabel("Cards in Hand:");
         label.setFont(label.getFont().deriveFont(17.0f));
         labelPanel.add(label);
         cardPanel.add(labelPanel, BorderLayout.NORTH);
-
+        
         this.currentPlayerHand = new JPanel(new FlowLayout());
         cardPanel.add(currentPlayerHand, BorderLayout.CENTER);
         addEmptyCardSlotsToHand(MAX_CARD_COUNT);
         this.repaint();
-
+        
         return cardPanel;
     }
-
+    
     private JPanel createBoardCanvas(Game game){
-        JPanel board = new EntireBoard();
+    	JPanel board = new EntireBoard();
         board.setLayout(new GridLayout(25,24,0,0));
         for (int row = 0; row < 25; row += 1) {
             for (int col = 0; col < 24; col += 1) {
@@ -392,7 +347,7 @@ public class Cluedo extends JFrame {
         }
         return board;
     }
-
+    
     class EntireBoard extends JPanel{
         @Override
         public void paint(Graphics g){
@@ -407,7 +362,6 @@ public class Cluedo extends JFrame {
             int width = getWidth();
             g.setFont(new Font("default", Font.BOLD, 15));
 
-
             g2d.drawString("KITCHEN", (int)(width*0.08), (int)(height * 0.16));
             g2d.drawString("BALL ROOM", (int)(width*0.44), (int)(height * 0.2));
             g2d.drawString("CONSERVATORY", (int)(width*0.795), (int)(height * 0.14));
@@ -419,7 +373,7 @@ public class Cluedo extends JFrame {
             g2d.drawString("STUDY", (int)(width*0.82), (int)(height * 0.925));
         }
     }
-
+    
     class BoardSquare extends JPanel{
 
         Location cell;
@@ -432,7 +386,7 @@ public class Cluedo extends JFrame {
             addMouseListener(new MouseAdapter() {
                 @Override
                 public void mouseReleased(MouseEvent e) {
-                    if(game.movePlayerByMouse(location)){
+                	if(game.movePlayerByMouse(location)){
                         getTopLevelAncestor().repaint();
                     }
                 }
@@ -452,40 +406,40 @@ public class Cluedo extends JFrame {
                         Piece current = p.getValue();
                         switch(current.icon()){
                             case "c":
-                                g2d.drawImage(Cluedo.pieceImages.get("Candlestick"), padding, padding, width, height,this);
+                            	g2d.drawImage(Cluedo.pieceImages.get("Candlestick"), padding, padding, width, height,this);
                                 break;
                             case "d":
-                                g2d.drawImage(Cluedo.pieceImages.get("Dagger"), padding, padding, width, height,this);
+                            	g2d.drawImage(Cluedo.pieceImages.get("Dagger"), padding, padding, width, height,this);
                                 break;
                             case "l":
-                                g2d.drawImage(Cluedo.pieceImages.get("Lead Pipe"), padding, padding, width, height,this);
+                            	g2d.drawImage(Cluedo.pieceImages.get("Lead Pipe"), padding, padding, width, height,this);
                                 break;
                             case "g":
-                                g2d.drawImage(Cluedo.pieceImages.get("Revolver"), padding, padding, width, height,this);
+                            	g2d.drawImage(Cluedo.pieceImages.get("Revolver"), padding, padding, width, height,this);
                                 break;
                             case "r":
-                                g2d.drawImage(Cluedo.pieceImages.get("Rope"), padding, padding, width, height,this);
+                            	g2d.drawImage(Cluedo.pieceImages.get("Rope"), padding, padding, width, height,this);
                                 break;
                             case "s":
-                                g2d.drawImage(Cluedo.pieceImages.get("Spanner"), padding, padding, width, height,this);
+                            	g2d.drawImage(Cluedo.pieceImages.get("Spanner"), padding, padding, width, height,this);
                                 break;
                             case "P":
-                                g2d.drawImage(Cluedo.pieceImages.get("Miss Peacock"), padding, padding, width, height,this);
+                            	g2d.drawImage(Cluedo.pieceImages.get("Miss Peacock"), padding, padding, width, height,this);
                                 break;
                             case "L":
-                                g2d.drawImage(Cluedo.pieceImages.get("Professor Plum"), padding, padding, width, height,this);
+                            	g2d.drawImage(Cluedo.pieceImages.get("Professor Plum"), padding, padding, width, height,this);
                                 break;
                             case "M":
-                                g2d.drawImage(Cluedo.pieceImages.get("Colonel Mustard"), padding, padding, width, height,this);
+                            	g2d.drawImage(Cluedo.pieceImages.get("Colonel Mustard"), padding, padding, width, height,this);
                                 break;
                             case "W":
-                                g2d.drawImage(Cluedo.pieceImages.get("Mrs White"), padding, padding, width, height,this);
+                            	g2d.drawImage(Cluedo.pieceImages.get("Mrs White"), padding, padding, width, height,this);
                                 break;
                             case "G":
-                                g2d.drawImage(Cluedo.pieceImages.get("Mr Green"), padding, padding, width, height,this);
+                            	g2d.drawImage(Cluedo.pieceImages.get("Mr Green"), padding, padding, width, height,this);
                                 break;
                             case "S":
-                                g2d.drawImage(Cluedo.pieceImages.get("Miss Scarlet"), padding, padding, width, height,this);
+                            	g2d.drawImage(Cluedo.pieceImages.get("Miss Scarlet"), padding, padding, width, height,this);
                                 break;
                         }
                     }
@@ -531,9 +485,9 @@ public class Cluedo extends JFrame {
             }
         };
     }
-
+    
     // ---------- FOR CHANGING COMPONENTS ON SCREEN DURING GAME -----------------
-
+    
     private boolean askYesOrNo(String askMessage, String windowTitle) {
         int response;
         while (true) {
@@ -566,7 +520,7 @@ public class Cluedo extends JFrame {
         JTextField playerNameField = new JTextField();
         ButtonGroup characterButtonGroup = new ButtonGroup();
         Set<JRadioButton> characterSet = new HashSet<JRadioButton>();
-
+        
         // Set up the character selection popup screen
         playerDetailsPanel.setLayout(new BoxLayout(playerDetailsPanel, BoxLayout.PAGE_AXIS));
         selectCharLabelPanel.setLayout(new BorderLayout());
@@ -583,7 +537,7 @@ public class Cluedo extends JFrame {
         enterNameLabelPanel.add(new JLabel("Enter your name:"), BorderLayout.WEST);
         playerDetailsPanel.add(enterNameLabelPanel);
         playerDetailsPanel.add(playerNameField);
-
+        
         // Ask players for their name and the character they pick
         String playerName;
         String characterName;
@@ -620,9 +574,10 @@ public class Cluedo extends JFrame {
      * @param message is the message to display (e.g. "Choose three cards:")
      * @param titleMessage is the title of the popup window (e.g. "Make a suggestion")
      * @param buttonName is the text to display on the confirmation button (e.g. "Okay" or "Accuse!")
+     * @param roomName is the name of the room to suggest for (only for suggesting). If not suggesting, this should be null.
      * @return a CardTuple consisting of the 3 chosen cards
      */
-    public CardTuple askForThreeCards(String message, String titleMessage, String buttonName) {
+    public CardTuple askForThreeCards(String message, String titleMessage, String buttonName, String roomName) {
         JPanel overallPanel = new JPanel();
         overallPanel.setLayout(new BoxLayout(overallPanel, BoxLayout.PAGE_AXIS));
 
@@ -642,11 +597,19 @@ public class Cluedo extends JFrame {
         JComboBox<String> weaponChoices = new JComboBox<String>(game.weapons.toArray(weaponsArray));
         selectionPanel.add(new JLabel("Select a Weapon:"), BorderLayout.WEST);
         selectionPanel.add(weaponChoices, BorderLayout.EAST);
-
-        String[] roomsArray = new String[game.rooms.size()];
-        JComboBox<String> roomChoices = new JComboBox<String>(game.rooms.toArray(roomsArray));
-        selectionPanel.add(new JLabel("Select a Room:"), BorderLayout.WEST);
-        selectionPanel.add(roomChoices, BorderLayout.EAST);
+        
+        JComboBox<String> roomChoices = null;
+        String chosenRoomName = roomName;
+        if (roomName == null) {
+        	// When accusing (since any room can be chosen)
+	        String[] roomsArray = new String[game.rooms.size()];
+	        roomChoices = new JComboBox<String>(game.rooms.toArray(roomsArray));
+	        selectionPanel.add(new JLabel("Select a Room:"), BorderLayout.WEST);
+	        selectionPanel.add(roomChoices, BorderLayout.EAST);
+        } else {
+        	// When suggesting (since only the current room can be suggested)
+        	selectionPanel.add(new JLabel("Selected Room: " + roomName));
+        }
 
         overallPanel.add(labelPanel);
         overallPanel.add(new JPanel());
@@ -654,9 +617,74 @@ public class Cluedo extends JFrame {
 
         String[] buttonOption = {buttonName};
         JOptionPane.showOptionDialog(null, overallPanel, titleMessage, JOptionPane.PLAIN_MESSAGE, JOptionPane.QUESTION_MESSAGE, null, buttonOption, buttonOption[0]);
-        return new CardTuple(game.getCard((String)characterChoices.getSelectedItem()), game.getCard((String)weaponChoices.getSelectedItem()), game.getCard((String)roomChoices.getSelectedItem()));
+        if (roomChoices != null) { chosenRoomName = (String)roomChoices.getSelectedItem(); }
+        return new CardTuple(game.getCard((String)characterChoices.getSelectedItem()), game.getCard((String)weaponChoices.getSelectedItem()), game.getCard(chosenRoomName));
     }
-
+    
+    /**
+     * Ask a player to choose a card to refute with (if any), given 
+     * a suggestion.
+     * @param suggester is the Player that made the suggestion
+     * @param refuter is the Player to attempt to refute the suggestion
+     * @param suggestion
+     * @param refuteOptions is a collection of cards that the refuter can choose to refute with
+     * @return the Card chosen to refute with
+     */
+    public Card askToRefute(Player suggester, Player refuter, CardTuple suggestion, Set<Card> refuteOptions) {
+		JPanel refutingPanel = new JPanel();
+		refutingPanel.setLayout(new BoxLayout(refutingPanel, BoxLayout.PAGE_AXIS));
+		
+		JPanel labelPanel1 = new JPanel(new BorderLayout());
+        labelPanel1.add(new JLabel(suggester.getPlayerName() + " (" + suggester.getCharacterName() + ") made the following suggestion:"), BorderLayout.WEST);
+        refutingPanel.add(labelPanel1);
+        
+        JPanel suggestionPanel = new JPanel(new FlowLayout());
+        showCardTuple(suggestionPanel, suggestion);
+        refutingPanel.add(suggestionPanel);
+        refutingPanel.add(new JPanel());
+        
+        if (refuteOptions.size() > 0) {
+        	Card refuteCard = null;
+        	JComboBox<String> refutingOptions = new JComboBox<String>();
+        	JPanel refutingOptionsPanel = new JPanel(new FlowLayout());
+        	
+        	for(Card card : refuteOptions) { 
+        		refutingOptions.addItem(card.getName());
+        		refutingOptionsPanel.add(new JLabel(new ImageIcon(cardImages.get(card.getName()).getScaledInstance(CARD_WIDTH, CARD_HEIGHT, Image.SCALE_SMOOTH))));
+        	}
+        	
+        	JPanel labelPanel2 = new JPanel(new BorderLayout());
+        	labelPanel2.add(new JLabel("You can use one of these cards to refute. Select a card to refute with:"), BorderLayout.WEST);
+        	refutingPanel.add(labelPanel2);
+        	
+        	refutingPanel.add(refutingOptionsPanel);
+        	refutingPanel.add(new JLabel());
+        	refutingPanel.add(refutingOptions);
+        	
+        	while (refuteCard == null) { 
+        		JOptionPane.showOptionDialog(null, refutingPanel, refuter.getPlayerName() + "'s (" + refuter.getCharacterName() + ") turn to refute", 
+        				JOptionPane.PLAIN_MESSAGE, JOptionPane.QUESTION_MESSAGE, null, okOption, okOption[0]);
+        		refuteCard = game.getCard((String)refutingOptions.getSelectedItem());
+        	}
+        	return refuteCard;
+        } else {
+        	JPanel labelPanel3 = new JPanel(new BorderLayout());
+        	labelPanel3.add(new JLabel("Unfortunately, you have no cards you can refute with. Click \"OK\" to end your refutation."));
+        	refutingPanel.add(labelPanel3);
+        	JOptionPane.showMessageDialog(null, refutingPanel, refuter.getPlayerName() + "'s (" + refuter.getCharacterName() + ") turn to Refute", JOptionPane.PLAIN_MESSAGE);
+        	return null;
+        }
+    }
+    
+    public void showCardTuple(JPanel panel, CardTuple tuple) {
+    	ImageIcon cardIcon = new ImageIcon(cardImages.get(tuple.characterCard().getName()).getScaledInstance(CARD_WIDTH, CARD_HEIGHT, Image.SCALE_SMOOTH));
+    	panel.add(new JLabel(cardIcon));
+    	cardIcon = new ImageIcon(cardImages.get(tuple.weaponCard().getName()).getScaledInstance(CARD_WIDTH, CARD_HEIGHT, Image.SCALE_SMOOTH));
+    	panel.add(new JLabel(cardIcon));
+    	cardIcon = new ImageIcon(cardImages.get(tuple.roomCard().getName()).getScaledInstance(CARD_WIDTH, CARD_HEIGHT, Image.SCALE_SMOOTH));
+    	panel.add(new JLabel(cardIcon));
+    }
+    
     /**
      * Update the game state description
      * @param text
@@ -665,112 +693,109 @@ public class Cluedo extends JFrame {
         displayMessage.setText(text);
         this.repaint();
     }
-
+    
     public void showCurrentPlayerText(String text) {
-        currentPlayerNameDisplay.setText(text);
-        this.repaint();
+    	currentPlayerNameDisplay.setText(text);
+    	this.repaint();
     }
-
+    
     /**
      * Graphically display the values of rolled dice
      * @param firstDieValue
      * @param secondDieValue
      */
     public void showDiceRoll(int firstDieValue, int secondDieValue) {
-        ImageIcon dieIcon = new ImageIcon(diceImages.get(firstDieValue).getScaledInstance(DIE_SIZE, DIE_SIZE, Image.SCALE_SMOOTH));
-        this.die1.setIcon(dieIcon);
-        dieIcon = new ImageIcon(diceImages.get(secondDieValue).getScaledInstance(DIE_SIZE, DIE_SIZE, Image.SCALE_SMOOTH));
-        this.die2.setIcon(dieIcon);
-        this.repaint();
+    	ImageIcon dieIcon = new ImageIcon(diceImages.get(firstDieValue).getScaledInstance(DIE_SIZE, DIE_SIZE, Image.SCALE_SMOOTH));
+    	this.die1.setIcon(dieIcon);
+    	dieIcon = new ImageIcon(diceImages.get(secondDieValue).getScaledInstance(DIE_SIZE, DIE_SIZE, Image.SCALE_SMOOTH));
+    	this.die2.setIcon(dieIcon);
+    	this.repaint();
     }
-
+    
+    public void showRefutation(Card refuteCard, CardTuple suggestion) {
+    	JPanel refutationResultPanel = new JPanel();
+    	refutationResultPanel.setLayout(new BoxLayout(refutationResultPanel, BoxLayout.PAGE_AXIS));
+    	JPanel labelPanel1 = new JPanel(new BorderLayout());
+    	if (refuteCard != null) {
+    		// Someone refuted the suggestion
+    		labelPanel1.add(new JLabel("Your suggestion was refuted by the " + refuteCard.getName() + " card:"), BorderLayout.WEST);
+    		refutationResultPanel.add(labelPanel1);
+    		refutationResultPanel.add(new JLabel(new ImageIcon(cardImages.get(refuteCard.getName()).getScaledInstance(CARD_WIDTH, CARD_HEIGHT, Image.SCALE_SMOOTH))));
+    	} else {
+    		// The suggestion was not refuted
+    		labelPanel1.add(new JLabel("Your suggestion was not refuted by anyone!"));
+    		refutationResultPanel.add(labelPanel1);
+    	}
+    	refutationResultPanel.add(new JPanel());
+    	
+    	JPanel labelPanel2 = new JPanel(new BorderLayout());
+    	labelPanel2.add(new JLabel("Your suggestion:"));
+    	refutationResultPanel.add(labelPanel2);
+    	
+    	JPanel suggestionPanel = new JPanel(new FlowLayout());
+    	showCardTuple(suggestionPanel, suggestion);
+    	refutationResultPanel.add(suggestionPanel);
+    	
+    	JOptionPane.showMessageDialog(null, refutationResultPanel, "Refutation Results", JOptionPane.PLAIN_MESSAGE);
+    	displayGameStateMessage("Suggestion done");
+    }
+    
     public void setRollButton(boolean active) {
-        if (active) {
-            rollButton.setEnabled(true);
-            rollButton.setBackground(PASSAGEWAY_COLOR);
-        } else {
-            rollButton.setEnabled(false);
-            rollButton.setBackground(Color.gray);
-        }
-        this.repaint();
+    	if (active) {
+    		rollButton.setEnabled(true);
+        	rollButton.setBackground(PASSAGEWAY_COLOR);
+    	} else {
+    		rollButton.setEnabled(false);
+        	rollButton.setBackground(Color.gray);
+    	}
+    	this.repaint();
     }
-
+    
     public void setSuggestButton(boolean active) {
-        if (active) {
-            suggestButton.setEnabled(true);
-            suggestButton.setBackground(PASSAGEWAY_COLOR);
-        } else {
-            suggestButton.setEnabled(false);
-            suggestButton.setBackground(Color.gray);
-        }
-        this.repaint();
+    	if (active) {
+    		suggestButton.setEnabled(true);
+    		suggestButton.setBackground(PASSAGEWAY_COLOR);
+    	} else {
+    		suggestButton.setEnabled(false);
+    		suggestButton.setBackground(Color.gray);
+    	}
+    	this.repaint();
     }
-
+    
     public void setAccuseButton(boolean active) {
-        if (active) {
-            accuseButton.setEnabled(true);
-            accuseButton.setBackground(PASSAGEWAY_COLOR);
-        } else {
-            accuseButton.setEnabled(false);
-            accuseButton.setBackground(Color.gray);
-        }
-        this.repaint();
+    	if (active) {
+    		accuseButton.setEnabled(true);
+    		accuseButton.setBackground(PASSAGEWAY_COLOR);
+    	} else {
+    		accuseButton.setEnabled(false);
+    		accuseButton.setBackground(Color.gray);
+    	}
+    	this.repaint();
     }
-
+    
     /**
      * Graphically display all cards in the player's hand
      * @param player
      */
     public void showPlayerHand(Player player) {
-        currentPlayerHand.removeAll();
-        for (Map.Entry<String,Card> card : player.getHand().entrySet()) {
-            ImageIcon cardIcon = new ImageIcon(cardImages.get(card.getValue().getName()).getScaledInstance(CARD_WIDTH, CARD_HEIGHT, Image.SCALE_SMOOTH));
-            currentPlayerHand.add(new JLabel(cardIcon));
-        }
-        addEmptyCardSlotsToHand(MAX_CARD_COUNT-player.getHand().size());
-        this.repaint();
+    	currentPlayerHand.removeAll();
+    	for (Map.Entry<String,Card> card : player.getHand().entrySet()) {
+    		ImageIcon cardIcon = new ImageIcon(cardImages.get(card.getValue().getName()).getScaledInstance(CARD_WIDTH, CARD_HEIGHT, Image.SCALE_SMOOTH));
+    		currentPlayerHand.add(new JLabel(cardIcon));
+    	}
+    	addEmptyCardSlotsToHand(MAX_CARD_COUNT-player.getHand().size());
+    	this.repaint();
     }
-
+    
     /**
      * Append/Add empty card slots to the Player's Card Panel
      * @param numOfSlotsToAdd
      */
     public void addEmptyCardSlotsToHand(int numOfSlotsToAdd) {
-        if (numOfSlotsToAdd > 0) {
-            for (int i = 0; i < numOfSlotsToAdd; i++) { currentPlayerHand.add(new JLabel(emptyCardSlotImage)); }
-            this.repaint();
-        }
-    }
-
-    /**
-     * Graphically display a suggestion made by a player, according to a given suggestion
-     * @param player
-     * @param suggestion
-     */
-    public void showSuggestion(Player player, CardTuple suggestion) {
-        suggesterPlayerNameDisplay.setText(player.getPlayerName() + " (" + player.getCharacterName() + ") made the following suggestion: ");
-
-        suggestedCardsPanel.removeAll();
-        ImageIcon cardIcon;
-
-        cardIcon = new ImageIcon(cardImages.get(suggestion.characterCard().getName()).getScaledInstance(CARD_WIDTH, CARD_HEIGHT, Image.SCALE_SMOOTH));
-        suggestedCardsPanel.add(new JLabel(cardIcon));
-        cardIcon = new ImageIcon(cardImages.get(suggestion.weaponCard().getName()).getScaledInstance(CARD_WIDTH, CARD_HEIGHT, Image.SCALE_SMOOTH));
-        suggestedCardsPanel.add(new JLabel(cardIcon));
-        cardIcon = new ImageIcon(cardImages.get(suggestion.roomCard().getName()).getScaledInstance(CARD_WIDTH, CARD_HEIGHT, Image.SCALE_SMOOTH));
-        suggestedCardsPanel.add(new JLabel(cardIcon));
-
-        this.repaint();
-    }
-
-    /**
-     * Clear the Suggestion Panel of any cards, emptying the panel
-     */
-    public void clearSuggestion() {
-        suggesterPlayerNameDisplay.setText("Suggestion Panel");
-        suggestedCardsPanel.removeAll();
-        for (int i = 0; i < 3; i++) { suggestedCardsPanel.add(new JLabel(emptyCardSlotImage)); }
-        this.repaint();
+    	if (numOfSlotsToAdd > 0) {
+	    	for (int i = 0; i < numOfSlotsToAdd; i++) { currentPlayerHand.add(new JLabel(emptyCardSlotImage)); }
+	    	this.repaint();
+    	}
     }
 
     public static void main(String[] args){
